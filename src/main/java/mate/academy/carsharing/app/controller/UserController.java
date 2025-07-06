@@ -31,15 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
-    @Operation(
-            summary = "Get user ID from authentication",
-            description = "Extracts the user ID from the authenticated principal object"
-    )
-    private Long getUserId(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        return user.getId();
-    }
-
     @GetMapping("/me")
     @Operation(summary = "View the user", description = "View the user information")
     public UserDto getUserById(Authentication authentication) {
@@ -76,5 +67,14 @@ public class UserController {
     @Operation(summary = "Get all users", description = "Returns a paginated list of all users")
     public Page<UserDto> getAllUsers(Pageable pageable) {
         return userService.getAllUsers(pageable);
+    }
+
+    @Operation(
+            summary = "Get user ID from authentication",
+            description = "Extracts the user ID from the authenticated principal object"
+    )
+    private Long getUserId(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return user.getId();
     }
 }

@@ -14,6 +14,8 @@ public interface PaymentService {
 
     Page<PaymentDto> getAllPayments(Long userId, Pageable pageable);
 
+    Page<PaymentDto> getAllPayments(Pageable pageable);
+
     void paymentSuccess(String sessionId) throws PaymentException;
 
     void paymentCancel(String sessionId) throws PaymentException;

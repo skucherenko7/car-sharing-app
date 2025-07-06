@@ -24,10 +24,8 @@ import mate.academy.carsharing.app.service.StripePaymentService;
 import mate.academy.carsharing.app.service.telegram.MessageDispatchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Service
@@ -67,6 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setSessionId(session.getId());
         payment.setAmount(amount);
         return paymentMapper.toResponseDto(paymentRepository.save(payment));
+
     }
 
     @Override
@@ -84,49 +83,85 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public Page<PaymentDto> getAllPayments(Pageable pageable) {
+        return paymentRepository.findAll(pageable)
+                .map(paymentMapper::toDto);
+    }
+
+    @Override
     public void paymentSuccess(String sessionId) {
-        Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
-                () -> new EntityNotFoundException("Can`t find session by id " + sessionId)
-        );
-        if (!isPaymentSessionPaid(sessionId)) {
-            throw new PaymentException("Payment isn`t successful for sessionId: " + sessionId);
+        Payment payment = paymentRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Can't find session by id: %s", sessionId))
+                );
+
+        if (payment.getStatus() == Payment.Status.PAID) {
+            return;
         }
+
+        if (!isPaymentSessionPaid(sessionId)) {
+            throw new PaymentException(
+                    String.format("Payment isn't successful for sessionId: %s", sessionId));
+        }
+
         payment.setStatus(Payment.Status.PAID);
+
         try {
             messageDispatchService.sentMessageSuccessesPayment(payment);
         } catch (MessageDispatchException e) {
-            log.info("Can`t send the notification");
+            log.warn("Unable to send payment success message "
+                    + "for sessionId {}: {}", sessionId, e.getMessage());
         }
+
         paymentRepository.save(payment);
     }
 
     @Override
     public void paymentCancel(String sessionId) {
-        Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
-                () -> new EntityNotFoundException("Can`t find session by id " + sessionId)
-        );
-        if (payment.getStatus().equals(Payment.Status.PENDING)) {
+        String trimmedSessionId = sessionId.trim();
+
+        Payment payment = paymentRepository.findBySessionId(trimmedSessionId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Can't find session by id: %s", trimmedSessionId))
+                );
+
+        if (payment.getStatus() == Payment.Status.PENDING) {
             try {
                 messageDispatchService.sentMessageCancelPayment(payment);
             } catch (MessageDispatchException e) {
-                log.info("Can`t send the notification");
+                log.warn("Unable to send payment "
+                        + "cancel message for sessionId {}: {}", trimmedSessionId, e.getMessage());
             }
-            throw new ResponseStatusException(
-                    HttpStatus.PAYMENT_REQUIRED, "Your payment was cancelled!");
+
+            payment.setStatus(Payment.Status.CANCELLED);
+            paymentRepository.save(payment);
         }
     }
 
     private BigDecimal calculateAmount(Rental rental, Payment.Type type) {
-        long days = ChronoUnit.DAYS.between(rental.getRentalDate(), rental.getActualReturnDate());
-        BigDecimal amount = rental.getCar().getDailyFee().multiply(BigDecimal.valueOf(days));
         if (type == Payment.Type.FINE) {
-            long fineDays = ChronoUnit.DAYS.between(
-                    rental.getReturnDate(), rental.getActualReturnDate());
-            BigDecimal fineAmount = FINE_COEFFICIENT.multiply(
-                    rental.getCar().getDailyFee().multiply(BigDecimal.valueOf(fineDays)));
-            amount = amount.add(fineAmount);
+            if (rental.getActualReturnDate() == null || rental.getReturnDate() == null) {
+                throw new IllegalArgumentException("Missing dates for fine calculation");
+            }
+            long days = ChronoUnit.DAYS.between(rental.getRentalDate(),
+                    rental.getActualReturnDate());
+            long fineDays = ChronoUnit.DAYS.between(rental.getReturnDate(),
+                    rental.getActualReturnDate());
+
+            BigDecimal baseAmount = rental.getCar().getDailyFee()
+                    .multiply(BigDecimal.valueOf(days));
+            BigDecimal fineAmount = rental.getCar().getDailyFee()
+                    .multiply(BigDecimal.valueOf(fineDays))
+                    .multiply(FINE_COEFFICIENT);
+
+            return baseAmount.add(fineAmount);
         }
-        return amount;
+
+        if (rental.getRentalDate() == null || rental.getReturnDate() == null) {
+            throw new IllegalArgumentException("Missing dates for rental calculation");
+        }
+        long days = ChronoUnit.DAYS.between(rental.getRentalDate(), rental.getReturnDate());
+        return rental.getCar().getDailyFee().multiply(BigDecimal.valueOf(days));
     }
 
     private boolean isPaymentSessionPaid(String sessionId) {
