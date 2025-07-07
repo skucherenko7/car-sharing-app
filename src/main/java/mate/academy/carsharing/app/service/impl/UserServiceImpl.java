@@ -37,8 +37,9 @@ public class UserServiceImpl implements UserService {
         checkIfUserExists(requestDto);
         User user = userMapper.toModel(requestDto);
         user.setPassword(passwordEncoder.encode(requestDto.password()));
-        Role role = roleRepository.findByName(Role.RoleName.CUSTOMER).orElseThrow(
-                () -> new EntityNotFoundException("A role wasn’t find " + Role.RoleName.CUSTOMER));
+        Role role = roleRepository.findByRole(Role.RoleName.CUSTOMER).orElseThrow(
+                () -> new EntityNotFoundException("A role wasn’t find "
+                        + Role.RoleName.CUSTOMER));
         user.setRoles(addRole(role));
         return userMapper.toDto(userRepository.save(user));
     }
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUserRole(Long id, UpdateUserRoleRequestDto requestDto) {
         User user = getUserFromDB(id);
-        Role role = roleRepository.findByName(requestDto.role()).orElseThrow(
+        Role role = roleRepository.findByRole(requestDto.role()).orElseThrow(
                 () -> new EntityNotFoundException("A role wasn’t find by name " + requestDto.role())
         );
         user.setRoles(addRole(role));

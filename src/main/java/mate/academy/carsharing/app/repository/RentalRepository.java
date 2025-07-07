@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RentalRepository extends JpaRepository<Rental, Long> {
     List<Rental> findAllByUserId(Long userId);
 
-    Page<Rental> findAllByUserIdAndIsActive(Long userId, Boolean isActive, Pageable pageable);
+    Page<Rental> findByIsActiveTrue(Pageable pageable);
 
     Optional<Rental> findByIdAndUserId(Long rentalId, Long userId);
 

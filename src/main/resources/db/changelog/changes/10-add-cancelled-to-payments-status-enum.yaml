@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-cancelled-to-payments-status-enum
+      author: root
+      changes:
+        - sql: |
+            ALTER TABLE payments 
+            MODIFY COLUMN status ENUM('PENDING','PAID','CANCELLED') NOT NULL;

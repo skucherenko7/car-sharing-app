@@ -16,4 +16,3 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     Optional<Payment> findBySessionId(String sessionId);
 }
-

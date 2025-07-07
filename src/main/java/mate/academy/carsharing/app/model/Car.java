@@ -32,9 +32,9 @@ public class Car {
     private Type type;
     @Column(nullable = false)
     private int inventory;
-    @Column(nullable = false)
+    @Column(name = "daily_fee", nullable = false)
     private BigDecimal dailyFee;
-    @Column(nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     public enum Type {

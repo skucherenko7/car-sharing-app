@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import mate.academy.carsharing.app.dto.rental.CreateRentalRequestDto;
 import mate.academy.carsharing.app.dto.rental.RentalActualReturnDateResponseDto;
 import mate.academy.carsharing.app.dto.rental.RentalResponseDto;
-import mate.academy.carsharing.app.dto.rental.UserRentalIsActiveRequestDto;
 import mate.academy.carsharing.app.model.User;
 import mate.academy.carsharing.app.service.RentalService;
 import org.springframework.data.domain.Page;
@@ -30,15 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class RentalController {
     private final RentalService rentalService;
 
-    @Operation(
-            summary = "Get user ID from authentication",
-            description = "Extracts the user ID from the authenticated principal object"
-    )
-    private Long getUserId(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        return user.getId();
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a rental", description = "Creating a new rental")
@@ -54,6 +44,13 @@ public class RentalController {
         return rentalService.getRentalById(getUserId(authentication), rentalId);
     }
 
+    @GetMapping("/active")
+    @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "View all active rentals", description = "Viewing all active rentals")
+    public Page<RentalResponseDto> getAllActiveRentals(Pageable pageable) {
+        return rentalService.findAllActiveRentals(pageable);
+    }
+
     @PostMapping("/{rentalId}/return")
     @Operation(summary = "Close the rental", description = "Closing the rental by id")
     public RentalActualReturnDateResponseDto closeRental(
@@ -61,12 +58,12 @@ public class RentalController {
         return rentalService.closeRental(getUserId(authentication), rentalId);
     }
 
-    @GetMapping("/active")
-    @PreAuthorize("hasRole('MANAGER')")
-    @Operation(summary = "View user`s rentals",
-            description = "Viewing the user`s rentals active or inactive")
-    public Page<RentalResponseDto> getUserRentalIsActive(
-            UserRentalIsActiveRequestDto requestDto, Pageable pageable) {
-        return rentalService.findActiveRentalsForUserRequest(requestDto, pageable);
+    @Operation(
+            summary = "Get user ID from authentication",
+            description = "Extracts the user ID from the authenticated principal object"
+    )
+    private Long getUserId(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return user.getId();
     }
 }

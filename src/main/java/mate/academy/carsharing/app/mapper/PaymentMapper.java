@@ -8,7 +8,10 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface PaymentMapper {
-    PaymentResponseDto toResponseDto(Payment payment);
+    default PaymentResponseDto toResponseDto(Payment payment) {
+        return new PaymentResponseDto(payment.getId(),
+                payment.getSessionId(), payment.getSessionUrl());
+    }
 
     @Mapping(target = "rentalId", source = "rental.id")
     PaymentDto toDto(Payment payment);

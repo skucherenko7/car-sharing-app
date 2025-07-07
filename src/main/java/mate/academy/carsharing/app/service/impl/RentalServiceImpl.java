@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import mate.academy.carsharing.app.dto.rental.CreateRentalRequestDto;
 import mate.academy.carsharing.app.dto.rental.RentalActualReturnDateResponseDto;
 import mate.academy.carsharing.app.dto.rental.RentalResponseDto;
-import mate.academy.carsharing.app.dto.rental.UserRentalIsActiveRequestDto;
 import mate.academy.carsharing.app.exception.EntityNotFoundException;
 import mate.academy.carsharing.app.exception.ForbiddenOperationException;
 import mate.academy.carsharing.app.exception.InsufficientQuantityException;
@@ -79,13 +78,9 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toResponseDto(rental);
     }
 
-    @Override
-    public Page<RentalResponseDto> findActiveRentalsForUserRequest(
-            UserRentalIsActiveRequestDto requestDto, Pageable pageable) {
-        return rentalRepository
-                .findAllByUserIdAndIsActive(requestDto.userId(), requestDto.isActive(), pageable)
+    public Page<RentalResponseDto> findAllActiveRentals(Pageable pageable) {
+        return rentalRepository.findByIsActiveTrue(pageable)
                 .map(rentalMapper::toResponseDto);
-
     }
 
     @Override
