@@ -81,6 +81,12 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return buildErrorResponse(ex, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(MessageDispatchException.class)
+    public ResponseEntity<ErrorResponseDto>
+            handleMessageDispatchException(MessageDispatchException ex) {
+        return buildErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private ResponseEntity<ErrorResponseDto> buildErrorResponse(Exception ex, HttpStatus status) {
         ErrorResponseDto response = new ErrorResponseDto(
                 status.value(),
