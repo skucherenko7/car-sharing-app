@@ -12,8 +12,10 @@ import mate.academy.carsharing.app.service.CarService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CarServiceImpl implements CarService {
     private final CarRepository carRepository;
@@ -22,7 +24,10 @@ public class CarServiceImpl implements CarService {
     @Override
     public CarDto addCar(CreateCarDto createCarDto) {
         Car car = carMapper.toModel(createCarDto);
-        return carMapper.toDto(carRepository.save(car));
+        System.out.println("Mapped car = " + car);
+        Car saved = carRepository.save(car);
+        System.out.println("Saved = " + saved);
+        return carMapper.toDto(saved);
     }
 
     @Override

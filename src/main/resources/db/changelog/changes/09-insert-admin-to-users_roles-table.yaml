@@ -6,9 +6,5 @@ databaseChangeLog:
         - insert:
             tableName: users_roles
             columns:
-              - column:
-                  name: user_id
-                  valueComputed: (SELECT id FROM users WHERE email = 'manager@gmail.com')
-              - column:
-                  name: role_id
-                  valueComputed: (SELECT id FROM roles WHERE name = 'MANAGER')
+              - column: { name: user_id, value: "1" }
+              - column: { name: role_id, value: "1" }

@@ -17,17 +17,21 @@ import mate.academy.carsharing.app.model.Rental;
 import mate.academy.carsharing.app.model.User;
 import mate.academy.carsharing.app.repository.CarRepository;
 import mate.academy.carsharing.app.repository.RentalRepository;
+import mate.academy.carsharing.app.repository.UserRepository;
 import mate.academy.carsharing.app.service.RentalService;
 import mate.academy.carsharing.app.service.telegram.MessageDispatchService;
 import mate.academy.carsharing.app.service.util.TimeProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RentalServiceImpl implements RentalService {
     private static final boolean ACTIVE = true;
@@ -39,20 +43,35 @@ public class RentalServiceImpl implements RentalService {
     private final RentalMapper rentalMapper;
     private final MessageDispatchService messageDispatchService;
     private final TimeProvider timeProvider;
+    private final UserRepository userRepository;
 
     @Override
-    @Transactional
-    public RentalResponseDto createRental(
-            Authentication authentication, CreateRentalRequestDto requestDto) {
-        User user = (User) authentication.getPrincipal();
+    public RentalResponseDto createRental(Authentication authentication,
+                                          CreateRentalRequestDto requestDto) {
+        String username;
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof User) {
+            username = ((User) principal).getEmail();
+        } else if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
         if (rentalRepository.existsByUserIdAndIsActiveIsTrue(user.getId())) {
             throw new ForbiddenOperationException("You already have a rental car");
         }
+
         Car car = getCarFromDB(requestDto.carId());
+
         if (car.getInventory() == INVALID_LIMIT) {
-            throw new InsufficientQuantityException(
-                    "Insufficient quantity of cars");
+            throw new InsufficientQuantityException("Insufficient quantity of cars");
         }
+
         Rental rental = rentalMapper.toModel(requestDto);
         rental.setRentalDate(timeProvider.now());
         rental.setReturnDate(requestDto.returnDate());
@@ -60,11 +79,13 @@ public class RentalServiceImpl implements RentalService {
         rental.setUser(user);
         car.setInventory(car.getInventory() - 1);
         rental.setCar(car);
+
         try {
             messageDispatchService.sentMessageCreateRental(rental);
         } catch (MessageDispatchException e) {
-            log.info("Can`t send the notification to user by id {}", user.getId());
+            log.info("Can't send the notification to user by id {}", user.getId());
         }
+
         return rentalMapper.toResponseDto(rentalRepository.save(rental));
     }
 
@@ -78,13 +99,13 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toResponseDto(rental);
     }
 
+    @Override
     public Page<RentalResponseDto> findAllActiveRentals(Pageable pageable) {
         return rentalRepository.findByIsActiveTrue(pageable)
                 .map(rentalMapper::toResponseDto);
     }
 
     @Override
-    @Transactional
     public RentalActualReturnDateResponseDto closeRental(Long userId, Long rentalId) {
         List<Rental> rentals = rentalRepository.findAllByUserId(userId);
         Rental rental = getRentalFromDB(rentalId);

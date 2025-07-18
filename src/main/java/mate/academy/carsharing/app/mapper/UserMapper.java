@@ -1,6 +1,7 @@
 package mate.academy.carsharing.app.mapper;
 
 import java.util.List;
+import mate.academy.carsharing.app.config.MapperConfig;
 import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UserDto;

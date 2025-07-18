@@ -1,5 +1,6 @@
 package mate.academy.carsharing.app.mapper;
 
+import mate.academy.carsharing.app.config.MapperConfig;
 import mate.academy.carsharing.app.dto.payment.PaymentDto;
 import mate.academy.carsharing.app.dto.payment.PaymentResponseDto;
 import mate.academy.carsharing.app.model.Payment;
