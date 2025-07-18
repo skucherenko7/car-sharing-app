@@ -1,6 +1,4 @@
-package mate.academy.carsharing.app.mapper;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+package mate.academy.carsharing.app.config;
 
 import lombok.RequiredArgsConstructor;
 import mate.academy.carsharing.app.security.JwtAuthenticationFilter;
@@ -36,18 +34,20 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**",
-                                "/error",
-                                "/cars",
+                        .requestMatchers(
+                                "/auth/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**")
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/swagger-ui.html",
+                                "/webjars/**"
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated()
                 )
-                .httpBasic(withDefaults())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
                 .userDetailsService(userDetailsService)

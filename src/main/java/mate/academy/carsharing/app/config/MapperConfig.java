@@ -1,4 +1,4 @@
-package mate.academy.carsharing.app.mapper;
+package mate.academy.carsharing.app.config;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.NullValueCheckStrategy;

@@ -17,5 +17,3 @@ databaseChangeLog:
       file: db/changelog/changes/08-create-users_roles-table.yaml
   - include:
       file: db/changelog/changes/09-insert-admin-to-users_roles-table.yaml
-  - include:
-      file: db/changelog/changes/10-add-cancelled-to-payments-status-enum.yaml

@@ -1,6 +1,7 @@
 package mate.academy.carsharing.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import mate.academy.carsharing.app.dto.car.CarDto;
 import mate.academy.carsharing.app.dto.car.CreateCarDto;
 import mate.academy.carsharing.app.dto.car.UpdateCarInventoryDto;
 import mate.academy.carsharing.app.service.CarService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,12 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Car", description = "Endpoints for managing cars")
 @RestController
 @RequestMapping("/cars")
+@SecurityRequirement(name = "BearerAuth")
 @RequiredArgsConstructor
 public class CarController {
     private final CarService carService;
 
     @PostMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Save a car", description = "Saving a new car")
     public CarDto addCar(@RequestBody @Valid CreateCarDto createCarDto) {
@@ -45,7 +48,7 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @Operation(summary = "Update a car by id",
             description = "It’s a possibility to change any parameter in the car")
     public CarDto updateCarById(@RequestBody @Valid CreateCarDto carDto, @PathVariable Long id) {
@@ -54,12 +57,12 @@ public class CarController {
 
     @GetMapping
     @Operation(summary = "View cars", description = "View list of all cars information")
-    public Page<CarDto> getAllCars(Pageable pageable) {
+    public Page<CarDto> getAllCars(@ParameterObject Pageable pageable) {
         return carService.getAllCars(pageable);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @Operation(summary = "Update a car invention", description = "Updating a car invention by id")
     public CarDto updateCarsInventory(
             @RequestBody UpdateCarInventoryDto carDto, @PathVariable Long id) {
@@ -67,7 +70,7 @@ public class CarController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @Operation(summary = "Delete a car by id", description = "Deleting the car by id")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCarById(@PathVariable Long id) {

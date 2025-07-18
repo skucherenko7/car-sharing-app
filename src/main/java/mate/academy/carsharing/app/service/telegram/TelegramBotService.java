@@ -11,6 +11,7 @@ import mate.academy.carsharing.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,6 +46,9 @@ public class TelegramBotService {
                     handleUpdate(update);
                 }
             }
+        } catch (HttpClientErrorException.Conflict conflictEx) {
+            log.warn("Telegram polling conflict: "
+                    + "another getUpdates request is active. Skipping this poll cycle.");
         } catch (Exception e) {
             log.error("Telegram polling error", e);
             throw new TelegramApiException("Failed to read Telegram response", e);
