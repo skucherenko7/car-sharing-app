@@ -14,7 +14,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class UserRepositoryTest {
+public class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
