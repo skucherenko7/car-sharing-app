@@ -48,8 +48,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            System.out.println("✅ Authenticated " + username + " with roles " + authorities);
         }
 
         filterChain.doFilter(request, response);

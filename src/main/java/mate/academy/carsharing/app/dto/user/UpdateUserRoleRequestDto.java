@@ -1,10 +1,8 @@
 package mate.academy.carsharing.app.dto.user;
 
-import jakarta.validation.constraints.NotNull;
-import mate.academy.carsharing.app.model.Role;
+import mate.academy.carsharing.app.model.Role.RoleName;
 
 public record UpdateUserRoleRequestDto(
-        @NotNull
-        Role.RoleName role
+        RoleName role
 ) {
 }

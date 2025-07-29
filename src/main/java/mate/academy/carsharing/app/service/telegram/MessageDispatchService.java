@@ -6,7 +6,7 @@ import mate.academy.carsharing.app.model.Rental;
 import mate.academy.carsharing.app.model.User;
 
 public interface MessageDispatchService {
-    void sentMessage(Long userId, String message) throws MessageDispatchException;
+    void sendMessage(Long userId, String message) throws MessageDispatchException;
 
     void sentMessageSuccessesPayment(Payment payment) throws MessageDispatchException;
 

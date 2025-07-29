@@ -1,17 +1,16 @@
 package mate.academy.carsharing.app.service.telegram;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mate.academy.carsharing.app.exception.TelegramApiException;
 import mate.academy.carsharing.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -19,39 +18,51 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class TelegramBotService {
-    private static final String TELEGRAM_API_BASE_URL = "https://api.telegram.org/bot";
-
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
+    private final Environment env;
 
     @Value("${telegram.bot.token}")
     private String botToken;
 
-    private int lastUpdateId = 0;
+    @Value("${telegram.api.base-url:https://api.telegram.org/bot}")
+    private String telegramApiBaseUrl;
 
-    @Scheduled(fixedDelay = 3000)
+    private volatile long lastUpdateId = 0;
+
+    @Scheduled(fixedDelay = 5000)
     public void pollTelegramUpdates() {
+        if (isTestEnvironment()) {
+            return;
+        }
+        log.info("Polling Telegram for updates...");
+    }
+
+    private boolean isTestEnvironment() {
+        if ("true".equalsIgnoreCase(System.getProperty("skip.telegram.scheduling"))) {
+            return true;
+        }
+        return Arrays.asList(env.getActiveProfiles()).contains("test");
+    }
+
+    public void sendGreetingMessage(String chatId) {
+        String messageText = "Welcome to the Car Sharing Notification"
+                + " Bot!\nYou will now receive updates here.";
+
         String url = UriComponentsBuilder
-                .fromHttpUrl(TELEGRAM_API_BASE_URL + botToken + "/getUpdates")
-                .queryParam("offset", lastUpdateId + 1)
+                .fromHttpUrl(telegramApiBaseUrl)
+                .pathSegment(botToken, "sendMessage")
+                .queryParam("chat_id", chatId)
+                .queryParam("text", messageText)
                 .toUriString();
 
         try {
-            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-            List<Map<String, Object>> updates = (List<Map<String, Object>>) response.get("result");
-
-            if (updates != null && !updates.isEmpty()) {
-                for (Map<String, Object> update : updates) {
-                    lastUpdateId = (int) update.get("update_id");
-                    handleUpdate(update);
-                }
-            }
-        } catch (HttpClientErrorException.Conflict conflictEx) {
-            log.warn("Telegram polling conflict: "
-                    + "another getUpdates request is active. Skipping this poll cycle.");
+            restTemplate.getForObject(url, String.class);
+            log.info("Greeting sent to chatId {}", chatId);
         } catch (Exception e) {
-            log.error("Telegram polling error", e);
-            throw new TelegramApiException("Failed to read Telegram response", e);
+            log.error("Failed to send greeting", e);
+            throw new TelegramApiException("Failed to send greeting", e);
         }
     }
 
@@ -67,27 +78,6 @@ public class TelegramBotService {
 
         if ("/start".equalsIgnoreCase(text)) {
             sendGreetingMessage(chatId);
-        }
-    }
-
-    public void sendGreetingMessage(String chatId) {
-        String messageText = "Welcome to the Car Sharing Notification Bot!\n"
-                + "You will now receive updates here.";
-
-        String encodedText = URLEncoder.encode(messageText, StandardCharsets.UTF_8);
-
-        String url = UriComponentsBuilder
-                .fromHttpUrl(TELEGRAM_API_BASE_URL + botToken + "/sendMessage")
-                .queryParam("chat_id", chatId)
-                .queryParam("text", encodedText)
-                .toUriString();
-
-        try {
-            restTemplate.getForObject(url, String.class);
-            log.info("Greeting sent to chatId {}", chatId);
-        } catch (Exception e) {
-            log.error("Failed to send greeting", e);
-            throw new TelegramApiException("Failed to send greeting", e);
         }
     }
 }

@@ -41,31 +41,58 @@ public class PaymentServiceImpl implements PaymentService {
     private final MessageDispatchService messageDispatchService;
 
     @Override
+    public SessionCreateParams createStripeSessionParams(BigDecimal amount) {
+        long amountInCents = amount.multiply(new BigDecimal("100")).longValue();
+
+        return SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl("http://localhost:8080/payments/success/{CHECKOUT_SESSION_ID}")
+                .setCancelUrl("http://localhost:8080/payments/cancel/{CHECKOUT_SESSION_ID}")
+                .addLineItem(SessionCreateParams.LineItem.builder()
+                        .setQuantity(1L)
+                        .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
+                                .setCurrency("usd")
+                                .setUnitAmount(amountInCents)
+                                .setProductData(SessionCreateParams
+                                        .LineItem.PriceData.ProductData.builder()
+                                        .setName("Car Rental Payment")
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+    @Override
     public PaymentResponseDto createSession(Long userId, PaymentRequestDto requestDto) {
         Rental rental = rentalRepository.findByIdAndUserId(requestDto.rentalId(), userId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format("Can`t find rental by id %s and user id %s",
-                                        requestDto.rentalId(), userId))
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Can`t find rental by id %s and user id %s",
+                                requestDto.rentalId(), userId))
                 );
+
         BigDecimal amount = calculateAmount(rental, requestDto.paymentType());
-        SessionCreateParams sessionCreateParams = stripePaymentService
-                .createStripeSessionParams(amount);
-        Session session = null;
+        SessionCreateParams sessionCreateParams =
+                stripePaymentService.createStripeSessionParams(amount);
+
         try {
-            session = Session.create(sessionCreateParams);
+            Session session = Session.create(sessionCreateParams);
+
+            if (session == null) {
+                throw new SessionFallException("Stripe session is null");
+            }
+
+            Payment payment = new Payment();
+            payment.setStatus(Payment.Status.PENDING);
+            payment.setType(requestDto.paymentType());
+            payment.setRental(rental);
+            payment.setSessionUrl(session.getUrl());
+            payment.setSessionId(session.getId());
+            payment.setAmount(amount);
+
+            return paymentMapper.toResponseDto(paymentRepository.save(payment));
         } catch (StripeException e) {
             throw new SessionFallException("Can`t create Stripe Session", e);
         }
-        Payment payment = new Payment();
-        payment.setStatus(Payment.Status.PENDING);
-        payment.setType(requestDto.paymentType());
-        payment.setRental(rental);
-        payment.setSessionUrl(session.getUrl());
-        payment.setSessionId(session.getId());
-        payment.setAmount(amount);
-        return paymentMapper.toResponseDto(paymentRepository.save(payment));
-
     }
 
     @Override

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import mate.academy.carsharing.app.dto.UserLoginRequestDto;
 import mate.academy.carsharing.app.dto.UserLoginResponseDto;
 import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
-import mate.academy.carsharing.app.dto.user.UserDto;
+import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.exception.RegistrationException;
 import mate.academy.carsharing.app.security.AuthenticationService;
 import mate.academy.carsharing.app.service.UserService;
@@ -29,7 +29,7 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registration")
     @Operation(summary = "register user", description = "Registration a new user")
-    public UserDto register(@RequestBody @Valid UserRegisterRequestDto requestDto)
+    public UserResponseDto register(@RequestBody @Valid UserRegisterRequestDto requestDto)
             throws RegistrationException {
         return userService.register(requestDto);
     }

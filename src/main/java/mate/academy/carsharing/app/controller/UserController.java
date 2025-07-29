@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
 import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
-import mate.academy.carsharing.app.dto.user.UserDto;
+import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,13 +38,13 @@ public class UserController {
 
     @GetMapping("/me")
     @Operation(summary = "View the user", description = "View the user information")
-    public UserDto getUserById(Authentication authentication) {
+    public UserResponseDto getUserById(Authentication authentication) {
         return userService.findUserById(getUserId(authentication));
     }
 
     @PutMapping("/me")
     @Operation(summary = "Update the user", description = "Updating user information")
-    public UserDto updateUser(
+    public UserResponseDto updateUser(
             Authentication authentication, @RequestBody @Valid UpdateUserRequestDto requestDto) {
         return userService.updateUser(getUserId(authentication), requestDto);
     }
@@ -61,14 +62,14 @@ public class UserController {
     @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @PutMapping("/{id}/role")
     @Operation(summary = "Update role", description = "Updating the role of user")
-    public UserDto updateUserRole(
+    public UserResponseDto updateUserRole(
             @PathVariable Long id, @RequestBody @Valid UpdateUserRoleRequestDto requestDto) {
         return userService.updateUserRole(id, requestDto);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_MANAGER')")
-    public Page<UserDto> getAllUsers(
+    public Page<UserResponseDto> getAllUsers(
             @RequestParam(required = false) String sort,
             @PageableDefault(sort = "id") Pageable pageable) {
         if (sort != null && sort.contains("[")) {
@@ -82,11 +83,12 @@ public class UserController {
             description = "Extracts the user ID from the authenticated principal object"
     )
     private Long getUserId(Authentication authentication) {
-        String email = (String) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
 
-        UserDto user = userService.findByEmail(email)
+        UserResponseDto user = userService.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return user.getId();
+        return user.id();
     }
 }
