@@ -1,5 +1,6 @@
 package mate.academy.carsharing.app.service.impl;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,7 @@ import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
 import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
-import mate.academy.carsharing.app.dto.user.UserDto;
+import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.exception.EntityNotFoundException;
 import mate.academy.carsharing.app.exception.RegistrationException;
 import mate.academy.carsharing.app.mapper.UserMapper;
@@ -36,47 +37,62 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDto register(UserRegisterRequestDto requestDto) {
+    public UserResponseDto register(UserRegisterRequestDto requestDto)
+            throws RegistrationException {
         if (userRepository.existsByEmail(requestDto.email())) {
-            throw new RegistrationException(
-                    "User with email %s already exists".formatted(requestDto.email()));
+            throw new RegistrationException("This email already exists");
         }
 
-        User user = userMapper.toModel(requestDto);
+        User user = new User();
+        user.setEmail(requestDto.email());
         user.setPassword(passwordEncoder.encode(requestDto.password()));
-        Role role = getRoleByName(Role.RoleName.CUSTOMER);
-        user.setRoles(Set.of(role));
-        return userMapper.toDto(userRepository.save(user));
+        user.setFirstName(requestDto.firstName());
+        user.setLastName(requestDto.lastName());
+        user.setTelegramChatId(requestDto.telegramChatId());
+
+        Role defaultRole = roleRepository.findByName(Role.RoleName.CUSTOMER)
+                .orElseThrow(() -> new EntityNotFoundException("Default role CUSTOMER not found"));
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(defaultRole);
+        user.setRoles(roles);
+
+        User savedUser = userRepository.save(user);
+        return userMapper.toResponseDto(savedUser);
     }
 
     @Override
-    public Optional<UserDto> findByEmail(String email) {
-        return userRepository.findByEmail(email).map(userMapper::toDto);
+    public Optional<UserResponseDto> findByEmail(String email) {
+        return userRepository.findByEmail(email).map(userMapper::toResponseDto);
     }
 
     @Override
-    public UserDto findUserById(Long id) {
-        return userMapper.toDto(getUserById(id));
+    public UserResponseDto findUserById(Long id) {
+        return userMapper.toResponseDto(getUserById(id));
     }
 
     @Override
-    public UserDto updateUser(Long id, UpdateUserRequestDto requestDto) {
+    public UserResponseDto updateUser(Long id, UpdateUserRequestDto requestDto) {
         User user = getUserById(id);
         userMapper.updateUser(user, requestDto);
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toResponseDto(userRepository.save(user));
     }
 
     @Override
-    public Page<UserDto> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(userMapper::toDto);
+    public Page<UserResponseDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toResponseDto);
     }
 
     @Override
-    public UserDto updateUserRole(Long id, UpdateUserRoleRequestDto requestDto) {
+    public UserResponseDto updateUserRole(Long id, UpdateUserRoleRequestDto requestDto) {
         User user = getUserById(id);
         Role newRole = getRoleByName(requestDto.role());
-        user.setRoles(Set.of(newRole));
-        return userMapper.toDto(userRepository.save(user));
+
+        Set<Role> newRoles = new HashSet<>();
+        newRoles.add(newRole);
+        user.setRoles(newRoles);
+
+        return userMapper.toResponseDto(userRepository.save(user));
     }
 
     @Override
@@ -114,7 +130,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private Role getRoleByName(Role.RoleName roleName) {
-        return roleRepository.findByRole(roleName).orElseThrow(
+        return roleRepository.findByName(roleName).orElseThrow(
                 () -> new EntityNotFoundException("Role not found: " + roleName));
     }
 }

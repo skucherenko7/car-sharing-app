@@ -19,10 +19,12 @@ public class StripePaymentServiceImpl implements StripePaymentService {
 
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
+
     @Value("${payment.success.url}")
-    private String successUrl;
+    private String paymentSuccessUrl;
+
     @Value("${payment.cancel.url}")
-    private String cancelUrl;
+    private String paymentCancelUrl;
 
     @PostConstruct
     public void init() {
@@ -31,54 +33,58 @@ public class StripePaymentServiceImpl implements StripePaymentService {
 
     @Override
     public SessionCreateParams createStripeSessionParams(BigDecimal amount) {
-        Stripe.apiKey = stripeSecretKey;
         return SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}")
-                .setCancelUrl("http://localhost:3000/payment-cancel?session_id={CHECKOUT_SESSION_ID}")
+                .setSuccessUrl(appendSessionIdParam(paymentSuccessUrl))
+                .setCancelUrl(appendSessionIdParam(paymentCancelUrl))
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)
-                                .setPriceData(
-                                        SessionCreateParams.LineItem.PriceData.builder()
-                                                .setCurrency("usd")
-                                                .setUnitAmount(amount
-                                                        .multiply(BigDecimal.valueOf(100))
-                                                        .longValue())
-                                                .setProductData(
-                                                        SessionCreateParams
-                                                                .LineItem.PriceData
-                                                                .ProductData.builder()
-                                                                .setName("Car rental payment")
-                                                                .build()
-                                                )
-                                                .build()
-                                )
+                                .setPriceData(createPriceData(amount))
+                                .build()
+                )
+                .build();
+    }
+
+    private String appendSessionIdParam(String url) {
+        if (url != null && url.contains("{CHECKOUT_SESSION_ID}")) {
+            return url;
+        }
+        return url + "?session_id={CHECKOUT_SESSION_ID}";
+    }
+
+    private SessionCreateParams.LineItem.PriceData createPriceData(BigDecimal amount) {
+        return SessionCreateParams.LineItem.PriceData.builder()
+                .setCurrency(CURRENCY)
+                .setUnitAmount(amount.multiply(BigDecimal.valueOf(100)).longValue())
+                .setProductData(
+                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                .setName(PRODUCT_NAME)
                                 .build()
                 )
                 .build();
     }
 
     @Override
-    public Session cresteSession(SessionCreateParams params) {
-        Session session = null;
-        try {
-            session = Session.create(params);
-        } catch (StripeException e) {
-            throw new SessionFallException("Can`t create Stripe Session", e);
+    public Session createSession(SessionCreateParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("SessionCreateParams must not be null");
         }
-        return session;
+        try {
+            return Session.create(params);
+        } catch (StripeException e) {
+            throw new SessionFallException("Can’t create Stripe Session", e);
+        }
     }
 
     @Override
     public boolean isPaymentSessionPaid(String sessionId) {
-        Stripe.apiKey = stripeSecretKey;
         try {
             Session session = Session.retrieve(sessionId);
             return PAYMENT_STATUS.equals(session.getPaymentStatus());
         } catch (StripeException e) {
-            throw new RuntimeException("Can`t retrieve Stripe session by id " + sessionId, e);
+            throw new RuntimeException("Can’t retrieve Stripe session by id " + sessionId, e);
         }
     }
 }
