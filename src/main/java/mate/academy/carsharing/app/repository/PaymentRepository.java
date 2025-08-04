@@ -1,5 +1,6 @@
 package mate.academy.carsharing.app.repository;
 
+import java.util.List;
 import java.util.Optional;
 import mate.academy.carsharing.app.model.Payment;
 import org.springframework.data.domain.Page;
@@ -15,4 +16,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findAllByRental_User_Id(Long userId, Pageable pageable);
 
     Optional<Payment> findBySessionId(String sessionId);
+
+    List<Payment> findAllByRentalId(Long rentalId);
+
 }

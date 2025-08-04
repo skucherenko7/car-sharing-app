@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import mate.academy.carsharing.app.dto.rental.CreateRentalRequestDto;
 import mate.academy.carsharing.app.dto.rental.RentalActualReturnDateResponseDto;
@@ -12,9 +13,11 @@ import mate.academy.carsharing.app.dto.rental.RentalResponseDto;
 import mate.academy.carsharing.app.exception.ForbiddenOperationException;
 import mate.academy.carsharing.app.exception.InsufficientQuantityException;
 import mate.academy.carsharing.app.model.Car;
+import mate.academy.carsharing.app.model.Payment;
 import mate.academy.carsharing.app.model.Role;
 import mate.academy.carsharing.app.model.User;
 import mate.academy.carsharing.app.repository.CarRepository;
+import mate.academy.carsharing.app.repository.PaymentRepository;
 import mate.academy.carsharing.app.repository.RentalRepository;
 import mate.academy.carsharing.app.repository.RoleRepository;
 import mate.academy.carsharing.app.repository.UserRepository;
@@ -51,6 +54,9 @@ public class RentalServiceTest {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private TimeProvider timeProvider;
@@ -143,7 +149,8 @@ public class RentalServiceTest {
         Long rentalId = rentalResponse.id();
         Long userId = user.getId();
 
-        RentalResponseDto result = rentalService.getRentalById(userId, rentalId);
+        List<String> roles = List.of("ROLE_CUSTOMER");
+        RentalResponseDto result = rentalService.getRentalById(userId, roles, rentalId);
 
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(rentalId);
@@ -170,8 +177,10 @@ public class RentalServiceTest {
         Long rentalId = rentalResponse.id();
         Long userId = user2.getId();
 
+        List<String> roles = List.of("ROLE_CUSTOMER");
+
         assertThrows(ForbiddenOperationException.class, () ->
-                rentalService.getRentalById(userId, rentalId));
+                rentalService.getRentalById(userId, roles, rentalId));
     }
 
     @Test
@@ -195,7 +204,16 @@ public class RentalServiceTest {
                 new CreateRentalRequestDto(LocalDate.now().plusDays(3), car.getId()));
 
         Long rentalId = rentalResponse.id();
-        Long userId = user.getId();
+        final Long userId = user.getId();
+
+        Payment payment = new Payment();
+        payment.setRental(rentalRepository.findById(rentalId).orElseThrow());
+        payment.setStatus(Payment.Status.PAID);
+        payment.setAmount(car.getDailyFee());
+        payment.setSessionId("test-session-id-123");
+        payment.setSessionUrl("http://test-session-url");
+        payment.setType(Payment.Type.PAYMENT);
+        paymentRepository.save(payment);
 
         Car beforeClosingCar = carRepository.findById(car.getId()).orElseThrow();
 
@@ -254,8 +272,10 @@ public class RentalServiceTest {
     void getRentalById_shouldThrow_whenRentalNotExist() {
         Long nonExistingRentalId = 999L;
 
+        List<String> roles = List.of("ROLE_CUSTOMER");
+
         assertThrows(RuntimeException.class, () ->
-                rentalService.getRentalById(user.getId(), nonExistingRentalId));
+                rentalService.getRentalById(user.getId(), roles, nonExistingRentalId));
     }
 
     @Test

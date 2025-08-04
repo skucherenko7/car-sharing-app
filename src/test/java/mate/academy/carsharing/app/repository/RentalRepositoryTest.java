@@ -76,7 +76,7 @@ class RentalRepositoryTest {
     @Test
     @DisplayName("Should return all rentals for a given user ID")
     void findAllByUserId_ShouldReturnAllRentalsOfUser() {
-        List<Rental> rentals = rentalRepository.findAllByUserId(user.getId());
+        List<Rental> rentals = rentalRepository.findAllByUser_Id(user.getId());
         assertThat(rentals).hasSize(2);
         assertThat(rentals).extracting("id").contains(rental1.getId(), rental2.getId());
     }

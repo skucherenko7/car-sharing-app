@@ -18,8 +18,8 @@ VALUES (1, 'Q8', 'Audi', 700.00, 2)
 
 INSERT INTO rentals (id, rental_date, return_date, actual_return_date, car_id, user_id, is_active)
 VALUES
-    (1, '2025-07-27', '2025-08-01', NULL, 1, 2, TRUE),
-    (2, '2025-07-28', '2025-08-02', NULL, 1, 2, TRUE)
+    (1, '2025-07-27', '2099-12-31', NULL, 1, 2, TRUE),
+    (2, '2025-07-28', '2099-12-31', NULL, 1, 2, TRUE)
     ON DUPLICATE KEY UPDATE rental_date = VALUES(rental_date);
 
 INSERT INTO payments (id, amount, status, type, rental_id, session_id, session_url)

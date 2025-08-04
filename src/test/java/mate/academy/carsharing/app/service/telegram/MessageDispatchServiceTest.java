@@ -4,11 +4,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import mate.academy.carsharing.app.CarSharingAppApplication;
+import mate.academy.carsharing.app.exception.MessageDispatchException;
 import mate.academy.carsharing.app.model.Car;
 import mate.academy.carsharing.app.model.Payment;
 import mate.academy.carsharing.app.model.Rental;
@@ -27,6 +34,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(classes = CarSharingAppApplication.class)
 @AutoConfigureMockMvc
@@ -182,4 +191,43 @@ class MessageDispatchServiceTest {
         assertThatCode(() -> messageDispatchService.sentMessageToManagerNotOverdue(user))
                 .doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("sendMessage throws IllegalArgumentException if user has no telegramChatId")
+    void sendMessage_shouldThrowIfNoTelegramChatId() {
+        final User noChatUser = new User();
+        noChatUser.setEmail("nochat@test.com");
+        noChatUser.setFirstName("NoChat");
+        noChatUser.setLastName("User");
+        noChatUser.setPassword("Password123");
+        noChatUser.setTelegramChatId("");
+        final User savedUser = userRepository.save(noChatUser);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> messageDispatchService.sendMessage(savedUser.getId(), "Hello"));
+    }
+
+    @Test
+    @DisplayName("sendMessage throws MessageDispatchException if user not found")
+    void sendMessage_shouldThrowIfUserNotFound() {
+        Long invalidUserId = 99999L;
+        assertThrows(MessageDispatchException.class,
+                () -> messageDispatchService.sendMessage(invalidUserId, "Hello"));
+    }
+
+    @Test
+    @DisplayName("sendMessage throws MessageDispatchException on RestClientException")
+    void sendMessage_shouldThrowOnRestClientException() {
+        User testUser = user;
+        RestTemplate restTemplateMock = mock(RestTemplate.class);
+        when(restTemplateMock.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new RestClientException("Failed request"));
+
+        MessageDispatchServiceImpl serviceWithMock =
+                new MessageDispatchServiceImpl(userRepository, restTemplateMock);
+
+        assertThrows(MessageDispatchException.class,
+                () -> serviceWithMock.sendMessage(testUser.getId(), "Hello"));
+    }
 }
+

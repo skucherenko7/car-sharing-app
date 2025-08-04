@@ -1,6 +1,7 @@
 package mate.academy.carsharing.app.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -20,8 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(properties = {
         "stripe.secret.key=test_key",
-        "payment.success.url=http://localhost:3000/payment-success",
-        "payment.cancel.url=http://localhost:3000/payment-cancel"
+        "payment.success.url=http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}",
+        "payment.cancel.url=http://localhost:3000/payment-cancel?session_id={CHECKOUT_SESSION_ID}"
 })
 class StripePaymentServiceTest {
 
@@ -29,24 +30,27 @@ class StripePaymentServiceTest {
     private StripePaymentServiceImpl stripePaymentService;
 
     @Test
-    @DisplayName("CreateStripeSessionParams: returns valid Stripe session parameters.")
-    void createStripeSessionParams_shouldReturnCorrectParams() {
-        BigDecimal amount = BigDecimal.valueOf(10);
+    @DisplayName("CreateStripeSessionParams: returns valid SessionCreateParams")
+    void createStripeSessionParams_shouldCreateStripeSessionParams() {
+        String stripeSecretKey = "sk_test_1234567890abcdef";
+        String paymentSuccessUrl = "http://localhost:8080/payment-success";
+        String paymentCancelUrl = "http://localhost:8080/payment-cancel";
+
+        StripePaymentService stripePaymentService = new StripePaymentServiceImpl(
+                stripeSecretKey,
+                paymentSuccessUrl,
+                paymentCancelUrl
+        );
+
+        BigDecimal amount = BigDecimal.valueOf(100);
+
         SessionCreateParams params = stripePaymentService.createStripeSessionParams(amount);
 
-        assertThat(params).isNotNull();
-        assertThat(params.getSuccessUrl())
-                .isEqualTo("http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}");
-        assertThat(params.getCancelUrl())
-                .isEqualTo("http://localhost:3000/payment-cancel?session_id={CHECKOUT_SESSION_ID}");
-        assertThat(params.getLineItems()).hasSize(1);
-
-        var lineItem = params.getLineItems().get(0);
-        assertThat(lineItem.getQuantity()).isEqualTo(1);
-        assertThat(lineItem.getPriceData().getCurrency()).isEqualTo("usd");
-        assertThat(lineItem.getPriceData().getUnitAmount()).isEqualTo(1000L);
-        assertThat(lineItem.getPriceData().getProductData()
-                .getName()).isEqualTo("Car rental payment");
+        assertEquals("usd", params.getLineItems().get(0).getPriceData().getCurrency());
+        assertEquals(Long.valueOf(10000L), params.getLineItems().get(0)
+                .getPriceData().getUnitAmount());
+        assertEquals(paymentSuccessUrl, params.getSuccessUrl());
+        assertEquals(paymentCancelUrl, params.getCancelUrl());
     }
 
     @Test

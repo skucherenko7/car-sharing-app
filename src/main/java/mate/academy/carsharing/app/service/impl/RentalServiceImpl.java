@@ -1,6 +1,5 @@
 package mate.academy.carsharing.app.service.impl;
 
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,7 @@ import mate.academy.carsharing.app.model.Car;
 import mate.academy.carsharing.app.model.Rental;
 import mate.academy.carsharing.app.model.User;
 import mate.academy.carsharing.app.repository.CarRepository;
+import mate.academy.carsharing.app.repository.PaymentRepository;
 import mate.academy.carsharing.app.repository.RentalRepository;
 import mate.academy.carsharing.app.repository.UserRepository;
 import mate.academy.carsharing.app.service.RentalService;
@@ -44,6 +44,8 @@ public class RentalServiceImpl implements RentalService {
     private final MessageDispatchService messageDispatchService;
     private final TimeProvider timeProvider;
     private final UserRepository userRepository;
+
+    private final PaymentRepository paymentRepository;
 
     @Override
     public RentalResponseDto createRental(Authentication authentication,
@@ -90,12 +92,15 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public RentalResponseDto getRentalById(Long userId, Long rentalId) {
-        List<Rental> rentals = rentalRepository.findAllByUserId(userId);
+    public RentalResponseDto getRentalById(Long userId, List<String> roles, Long rentalId) {
         Rental rental = getRentalFromDB(rentalId);
-        if (!rentals.contains(rental)) {
+
+        boolean isManager = roles.contains("ROLE_MANAGER");
+
+        if (!isManager && !rental.getUser().getId().equals(userId)) {
             throw new ForbiddenOperationException("Access is denied");
         }
+
         return rentalMapper.toResponseDto(rental);
     }
 
@@ -107,24 +112,29 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public RentalActualReturnDateResponseDto closeRental(Long userId, Long rentalId) {
-        List<Rental> rentals = rentalRepository.findAllByUserId(userId);
-        Rental rental = getRentalFromDB(rentalId);
+        Rental rental = rentalRepository.findByIdAndUserId(rentalId, userId)
+                .orElseThrow(()
+                        -> new ForbiddenOperationException("Access is denied or rental not found"));
+
         if (!rental.getIsActive()) {
             throw new ForbiddenOperationException("The rental is closed");
         }
-        if (!rentals.contains(rental)) {
-            throw new ForbiddenOperationException("Access is denied");
-        }
-        rental.setIsActive(INACTIVE);
-        rental.setActualReturnDate(LocalDate.now());
+
+        rental.setIsActive(false);
+        rental.setActualReturnDate(timeProvider.now());
+
         try {
             messageDispatchService.sentMessageClosedRental(rental);
         } catch (MessageDispatchException e) {
-            log.info("Can`t send the notification to user by id {}", userId);
+            log.info("Can't send the notification to user by id {}", userId);
         }
+
         Car car = rental.getCar();
         car.setInventory(car.getInventory() + 1);
         carRepository.save(car);
+
+        rentalRepository.save(rental);
+
         return rentalMapper.toDtoWithActualReturnDate(rental);
     }
 
@@ -134,9 +144,10 @@ public class RentalServiceImpl implements RentalService {
         );
     }
 
-    private Rental getRentalFromDB(Long id) {
-        return rentalRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Can`t find the rental by id " + id)
-        );
+    private Rental getRentalFromDB(Long rentalId) {
+        return rentalRepository.findById(rentalId)
+                .orElseThrow(()
+                        -> new EntityNotFoundException("Rental not found with id: " + rentalId));
     }
+
 }

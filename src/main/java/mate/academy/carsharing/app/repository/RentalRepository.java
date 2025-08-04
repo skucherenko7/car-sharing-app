@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
-    List<Rental> findAllByUserId(Long userId);
+    List<Rental> findAllByUser_Id(Long userId);
 
     Page<Rental> findByIsActiveTrue(Pageable pageable);
 
@@ -20,4 +20,5 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     List<Rental> findAllByReturnDateLessThan(LocalDate date);
 
     List<Rental> findAllByReturnDateGreaterThanEqual(LocalDate date);
+
 }

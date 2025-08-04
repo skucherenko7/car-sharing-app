@@ -69,6 +69,7 @@ public class UserController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_MANAGER')")
+    @Operation(summary = "View users", description = "Viewing all users")
     public Page<UserResponseDto> getAllUsers(
             @RequestParam(required = false) String sort,
             @PageableDefault(sort = "id") Pageable pageable) {
@@ -83,12 +84,18 @@ public class UserController {
             description = "Extracts the user ID from the authenticated principal object"
     )
     private Long getUserId(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        String email;
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails userDetails) {
+            email = userDetails.getUsername();
+        } else if (principal instanceof String stringPrincipal) {
+            email = stringPrincipal;
+        } else {
+            throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
+        }
 
-        UserResponseDto user = userService.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        return user.id();
+        return userService.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"))
+                .id();
     }
 }

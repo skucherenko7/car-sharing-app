@@ -42,7 +42,7 @@ public class CarController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a car by id", description = "View all car information by id")
+    @Operation(summary = "Get a car by id", description = "Viewing all information by car id")
     public CarDto findCarById(@PathVariable Long id) {
         return carService.findCarById(id);
     }
@@ -56,7 +56,7 @@ public class CarController {
     }
 
     @GetMapping
-    @Operation(summary = "View cars", description = "View list of all cars information")
+    @Operation(summary = "View cars", description = "Viewing list of all cars information")
     public Page<CarDto> getAllCars(@ParameterObject Pageable pageable) {
         return carService.getAllCars(pageable);
     }
