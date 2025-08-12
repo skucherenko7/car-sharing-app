@@ -198,7 +198,7 @@ Now that Spring Boot application is running, you can use Postman (or any other R
 
 ### To learn how to use endpoints in Swagger, watch this video:
 
-[▶️ Watch the demo video] (https://www.loom.com/share/e139c04a5e7640a089a280a523bfe67e?sid=d68c14f1-b81a-4741-933c-ffe0b7da8639
+[▶️ Watch the demo video](https://www.loom.com/share/e139c04a5e7640a089a280a523bfe67e?sid=d68c14f1-b81a-4741-933c-ffe0b7da8639)
 
 ---
 
