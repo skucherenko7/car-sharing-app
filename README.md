@@ -1,11 +1,11 @@
 ## **Progect "CAR SHARING App"**
 
-Welcome to the *scalable and modular RESTful API** — **CarSharing  Backend**.  
+   Welcome to the *scalable and modular RESTful API** — **CarSharing  Backend**.  
 This project is built using modern technologies such as **Java**, **Spring Boot**, **Spring Security**, **Spring Data JPA**, **Swagger**, **Docker**, and more.
 
 ### **The purpose of the project**
 
-The purpose of this application is to provide full functionality of the online car rental service to users, namely:
+   The purpose of this application is to provide full functionality of the online car rental service to users, namely:
 - to manage users and authentication;
 - to manage and view cars, their characteristics and quantity;
 - to accompany, control and manage the signed lease by users;
@@ -74,7 +74,7 @@ The purpose of this application is to provide full functionality of the online c
 
 ### **Project structure**
 
-This project is an application with a multi-level architecture:
+  This project is an application with a multi-level architecture:
 - model layer - defines domain entities and data transfer objects (DTOs);
 - repository layer - interacts with the database using Spring Data JPA;
 - service layer - characterized by the presence of business logic, and is also an intermediary between repositories and controllers;
@@ -85,7 +85,6 @@ This project is an application with a multi-level architecture:
 ![Scheme](scheme-db.png)
 
 ---
-
 
 ### **Main Features and Functionalities**
 
@@ -199,9 +198,10 @@ Now that Spring Boot application is running, you can use Postman (or any other R
 
 ### To learn how to use endpoints in Swagger, watch this video:
 
-[▶️ Watch the demo video] https://www.loom.com/share/e139c04a5e7640a089a280a523bfe67e?sid=d68c14f1-b81a-4741-933c-ffe0b7da8639
+[▶️ Watch the demo video] (https://www.loom.com/share/e139c04a5e7640a089a280a523bfe67e?sid=d68c14f1-b81a-4741-933c-ffe0b7da8639
 
 ---
+
 ### You can also test this API yourself using Swagger by accessing the following link:
 
-[Link to Swagger: CarSharing] http://ec2-13-60-37-102.eu-north-1.compute.amazonaws.com
+[Link to Swagger: CarSharing] (http://ec2-13-60-37-102.eu-north-1.compute.amazonaws.com)
