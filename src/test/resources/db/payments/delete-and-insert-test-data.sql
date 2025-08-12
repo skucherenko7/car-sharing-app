@@ -22,8 +22,8 @@ VALUES
     (1, 1),
     (2, 2);
 
-INSERT INTO cars (id, model, brand, daily_fee, inventory)
-VALUES (1, 'Q8', 'Audi', 700.00, 2);
+INSERT INTO cars (id, brand, model, type, inventory, daily_fee, is_deleted)
+VALUES (1, 'Audi', 'Q8', 'SUV', 2, 700.00, false);
 
 INSERT INTO rentals (id, rental_date, return_date, actual_return_date,
                      car_id, user_id, is_active)

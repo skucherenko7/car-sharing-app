@@ -84,22 +84,25 @@ This project is an application with a multi-level architecture:
 ### **The scheme of relationships in the database**:
 ![Scheme](scheme-db.png)
 
+---
+
+
 ### **Main Features and Functionalities**
 
 The system is implemented on the basis of RESTful architecture and includes the following key controllers:
 
-## **'AuthenticationController':**
+### **'AuthenticationController':**
 - **POST: `/registration`** - register a new user (automatically assigned the USER role);
 - **POST: `/login`** - authenticate an existing user and generate a JWT token.
 
-## **'UserController':**
+### **'UserController':**
 - **GET: `/users/me`** - viewing the information of user;
 - **PUT: `/users/me`** - updating the imformation of user;
 - **PATCH: `/users/me`** - updating the password of user;
 - **PUT: `/users/{id}/role`** - updating the role of user;
 - **GET: `/users/all`** - viewing all users.
 
-## **'CarController':**
+### **'CarController':**
 - **POST: `/cars`** - creating a new car;
 - **GET: `/cars/{id}`** - viewing all information by car id;
 - **PUT: `/cars/{id}`** - changing any parameter in the car;
@@ -107,13 +110,13 @@ The system is implemented on the basis of RESTful architecture and includes the 
 - **PATCH: `/cars/{id}`** - updating a car invention by id;
 - **DELETE: `/cars/{id}`** - deleting the car by id.
 
-## **'RentalController':**
+### **'RentalController':**
 - **POST: `/rentals`** - creating a rental;
 - **GET: `/rentals/{rentalId}`** - viewing the rental by id;
 - **GET: `/rentals/active`** - viewing all active rentals;
 - **POST: `/rentals/{rentalId}/return`** - closing the rental by id.
 
-## **'PaymentController':**
+### **'PaymentController':**
 - **POST: `/payments/create`** - creating a session to payment rental;
 - **GET: `/payments/{id}`** - viewing the payment by id;
 - **GET: `/payments/success/{sessionId}`** - stripe redirects here after successful payment;
@@ -126,7 +129,7 @@ The system is implemented on the basis of RESTful architecture and includes the 
 
 Do you want to quickly run a Spring Boot application locally? Here is a step-by-step guide.
 
-## 1. Check the necessary tools.
+### 1. Check the necessary tools.
 
  - ***before starting, make sure you have the following components installed:***
 
@@ -137,14 +140,14 @@ Do you want to quickly run a Spring Boot application locally? Here is a step-by-
    - TelegramBot;
    - Stripe.
 
-## 2. Generate a Spring Boot app skeleton with the necessary dependencies using the official starter project generator
-## Spring Initializr. To open the new project in IntelliJ IDEA.
+### 2. Generate a Spring Boot app skeleton with the necessary dependencies using the official starter project generator
+### Spring Initializr. To open the new project in IntelliJ IDEA.
 
-## 3. To create the project from GitHub (create a new repository [go to the page]: (https://github.com/skucherenko7/car-sharing-app).
+### 3. To create the project from GitHub (create a new repository [go to the page]: https://github.com/skucherenko7/car-sharing-app
 
-## 4.Register the project in IntelliJ IDEA with a link to the remote repository, thus linking them.
+### 4.Register the project in IntelliJ IDEA with a link to the remote repository, thus linking them.
 
-## 5. Environment settings.
+### 5. Environment settings.
 
 In the root folder, create an .env file with the following content:
 ```
@@ -163,9 +166,8 @@ SPRING_LOCAL_PORT=your_data
 SPRING_DOCKER_PORT=your_data
 DEBUG_PORT=your_data
 ```
----
 
-## 6. Launching the application using Maven or Docker:
+### 6. Launching the application using Maven or Docker:
 
 **Run the Application Using Maven**
 - Use the following command to launch the Spring Boot application:
@@ -201,3 +203,5 @@ Now that Spring Boot application is running, you can use Postman (or any other R
 
 ---
 ### You can also test this API yourself using Swagger by accessing the following link:
+
+[Link to Swagger: CarSharing] http://ec2-13-60-37-102.eu-north-1.compute.amazonaws.com

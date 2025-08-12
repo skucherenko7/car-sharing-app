@@ -1,12 +1,10 @@
 package mate.academy.carsharing.app.service.telegram;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mate.academy.carsharing.app.exception.TelegramApiException;
-import mate.academy.carsharing.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,8 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class TelegramBotService {
     private final RestTemplate restTemplate;
-    private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
     private final Environment env;
 
     @Value("${telegram.bot.token}")

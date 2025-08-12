@@ -236,5 +236,4 @@ public class UserUtilTest {
                 Set.of("MANAGER")
         );
     }
-
 }

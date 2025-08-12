@@ -22,7 +22,6 @@ public class StripePaymentServiceImpl implements StripePaymentService {
     private final String paymentSuccessUrl;
     private final String paymentCancelUrl;
 
-    // Конструктор для Spring та тестів
     public StripePaymentServiceImpl(
             @Value("${stripe.secret.key}") String stripeSecretKey,
             @Value("${payment.success.url}") String paymentSuccessUrl,

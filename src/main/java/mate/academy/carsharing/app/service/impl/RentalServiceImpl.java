@@ -44,7 +44,6 @@ public class RentalServiceImpl implements RentalService {
     private final MessageDispatchService messageDispatchService;
     private final TimeProvider timeProvider;
     private final UserRepository userRepository;
-
     private final PaymentRepository paymentRepository;
 
     @Override
@@ -149,5 +148,4 @@ public class RentalServiceImpl implements RentalService {
                 .orElseThrow(()
                         -> new EntityNotFoundException("Rental not found with id: " + rentalId));
     }
-
 }

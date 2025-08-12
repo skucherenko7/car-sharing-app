@@ -39,7 +39,6 @@ class AuthenticationServiceTest {
     @Test
     @DisplayName("authenticate(): should return JWT token when credentials are valid")
     void authenticate_shouldReturnJwtToken_whenCredentialsAreValid() {
-        // Given
         String email = "test@gmail.com";
         String password = "password";
         String expectedToken = "jwt-token";
