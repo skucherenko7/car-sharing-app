@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: mate.academy.carsharing.app.controller.AuthenticationControllerTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.280 s -- in mate.academy.carsharing.app.controller.AuthenticationControllerTest

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-manager-to-users-table
+      author: root
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: email, value: "manager@gmail.com" }
+              - column: { name: first_name, value: "manager" }
+              - column: { name: last_name, value: "manager" }
+              - column: { name: password, value: "$2y$10$copz6yHJeSQbQav.oBK84eLY8tdOKDO2c/rebsjOdJPx8cf18VBDG" }
+              - column: { name: telegram_chat_id, value: "1234567890" }

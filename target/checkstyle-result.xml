@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="9.3">
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\annotation\FieldMatch.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\annotation\FieldMatchValidator.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\CarSharingAppApplication.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\config\MapperConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\config\OpenApiConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\config\SecurityConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\controller\AuthenticationController.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\controller\CarController.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\controller\PaymentController.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\controller\RentalController.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\controller\UserController.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\car\CarDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\car\CreateCarDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\car\UpdateCarInventoryDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\ErrorResponseDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\payment\PaymentCancelResponse.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\payment\PaymentDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\payment\PaymentRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\payment\PaymentResponseDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\payment\PaymentWithSessionDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\rental\CreateRentalRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\rental\RentalActualReturnDateResponseDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\rental\RentalResponseDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\rental\UserRentalIsActiveRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\UpdateUserPasswordRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\UpdateUserRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\user\UpdateUserRoleRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\user\UserDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\user\UserResponseDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\UserLoginRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\UserLoginResponseDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\dto\UserRegisterRequestDto.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\CustomGlobalExceptionHandler.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\EntityNotFoundException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\ForbiddenOperationException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\InsufficientQuantityException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\MessageDispatchException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\PaymentException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\RegistrationException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\SessionFallException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\exception\TelegramApiException.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\mapper\CarMapper.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\mapper\PaymentMapper.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\mapper\RentalMapper.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\mapper\RestTemplateConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\mapper\SchedulerConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\mapper\UserMapper.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\model\Car.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\model\Payment.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\model\Rental.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\model\Role.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\model\User.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\repository\CarRepository.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\repository\PaymentRepository.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\repository\RentalRepository.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\repository\RoleRepository.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\repository\UserRepository.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\security\AuthenticationService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\security\CustomUserDetailService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\security\JwtAuthenticationFilter.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\security\JwtUtil.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\CarService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\impl\CarServiceImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\impl\PaymentServiceImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\impl\RentalServiceImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\impl\StripePaymentServiceImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\impl\UserServiceImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\PaymentService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\RentalService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\StripePaymentService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\telegram\MessageDispatchService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\telegram\MessageDispatchServiceImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\telegram\RentalMessageScheduler.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\telegram\TelegramBotService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\UserService.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\util\TimeProvider.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\java\mate\academy\carsharing\app\service\util\TimeProviderImpl.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\CarSharingAppApplicationTests.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\config\StripeMockConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\config\TestTelegramConfig.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\controller\AuthenticationControllerTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\controller\CarControllerTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\controller\PaymentControllerTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\controller\RentalControllerTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\controller\UserControllerTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\example\AuthenticationUtilTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\example\CarUtilTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\example\PaymentUtilTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\example\RentalUtilTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\example\UserUtilTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\repository\PaymentRepositoryTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\repository\RentalRepositoryTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\repository\RoleRepositoryTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\repository\UserRepositoryTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\security\AuthenticationServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\security\CustomUserDetailServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\CarServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\PaymentServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\RentalServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\StripePaymentServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\telegram\MessageDispatchServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\telegram\RentalMessageSchedulerTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\telegram\TelegramBotServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\java\mate\academy\carsharing\app\service\UserServiceTest.java">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\main\resources\application.properties">
+</file>
+<file name="C:\My projects\IdeaProjects\car-sharing-app\src\test\resources\application.properties">
+</file>
+</checkstyle>

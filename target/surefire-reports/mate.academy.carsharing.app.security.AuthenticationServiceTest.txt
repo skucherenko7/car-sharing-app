@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: mate.academy.carsharing.app.security.AuthenticationServiceTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.184 s -- in mate.academy.carsharing.app.security.AuthenticationServiceTest

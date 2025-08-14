@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-enum-roles-to-roles-table
+      author: root
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: name, value: "MANAGER" }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: name, value: "CUSTOMER" }
