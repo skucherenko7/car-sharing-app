@@ -1,0 +1,12 @@
+# IntelliJ IDEA project settings
+.idea/
+
+# Maven/Gradle build output
+target/
+
+# Environment variables
+.env
+
+car-sharing-app-clean/
+
+
