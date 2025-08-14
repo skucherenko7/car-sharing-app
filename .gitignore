@@ -8,5 +8,4 @@
 .env
 
 car-sharing-app-clean/
-
-
+target/
