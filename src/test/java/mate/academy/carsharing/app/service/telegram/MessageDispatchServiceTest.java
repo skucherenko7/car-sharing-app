@@ -230,4 +230,3 @@ class MessageDispatchServiceTest {
                 () -> serviceWithMock.sendMessage(testUser.getId(), "Hello"));
     }
 }
-

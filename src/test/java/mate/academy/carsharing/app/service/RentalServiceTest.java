@@ -22,7 +22,6 @@ import mate.academy.carsharing.app.repository.RentalRepository;
 import mate.academy.carsharing.app.repository.RoleRepository;
 import mate.academy.carsharing.app.repository.UserRepository;
 import mate.academy.carsharing.app.service.impl.RentalServiceImpl;
-import mate.academy.carsharing.app.service.telegram.MessageDispatchService;
 import mate.academy.carsharing.app.service.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,9 +47,6 @@ public class RentalServiceTest {
 
     @Autowired
     private RentalRepository rentalRepository;
-
-    @Autowired
-    private MessageDispatchService messageDispatchService;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -298,5 +294,4 @@ public class RentalServiceTest {
         assertThrows(RuntimeException.class, () ->
                 rentalService.createRental(authentication, requestDto));
     }
-
 }

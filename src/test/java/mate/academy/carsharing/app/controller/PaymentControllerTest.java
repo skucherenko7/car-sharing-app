@@ -14,15 +14,12 @@ import mate.academy.carsharing.app.config.StripeMockConfig;
 import mate.academy.carsharing.app.dto.payment.PaymentRequestDto;
 import mate.academy.carsharing.app.model.Payment;
 import mate.academy.carsharing.app.model.Rental;
-import mate.academy.carsharing.app.model.Role;
 import mate.academy.carsharing.app.model.User;
-import mate.academy.carsharing.app.repository.CarRepository;
 import mate.academy.carsharing.app.repository.PaymentRepository;
 import mate.academy.carsharing.app.repository.RentalRepository;
 import mate.academy.carsharing.app.repository.RoleRepository;
 import mate.academy.carsharing.app.repository.UserRepository;
 import mate.academy.carsharing.app.security.JwtUtil;
-import mate.academy.carsharing.app.service.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,9 +56,6 @@ public class PaymentControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private PaymentService paymentService;
-
-    @Autowired
     private PaymentRepository paymentRepository;
 
     @Autowired
@@ -74,9 +68,6 @@ public class PaymentControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private CarRepository carRepository;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
     private String customerJwtToken;
@@ -86,11 +77,6 @@ public class PaymentControllerTest {
 
     @BeforeEach
     void setUp() {
-        Role managerRole = roleRepository.findByName(Role.RoleName.MANAGER)
-                .orElseThrow(() -> new RuntimeException("Role MANAGER not found"));
-        Role customerRole = roleRepository.findByName(Role.RoleName.CUSTOMER)
-                .orElseThrow(() -> new RuntimeException("Role CUSTOMER not found"));
-
         User manager = userRepository.findByEmail("manager@gmail.com")
                 .orElseThrow(() -> new RuntimeException("Manager user not found"));
 
