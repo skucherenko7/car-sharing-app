@@ -2,7 +2,7 @@
 .idea/
 
 # Maven/Gradle build output
-target/
+/target/
 
 # Environment variables
 .env
