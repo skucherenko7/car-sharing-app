@@ -1,6 +1,5 @@
 package mate.academy.carsharing.app.service.impl;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mate.academy.carsharing.app.dto.rental.CreateRentalRequestDto;
@@ -13,6 +12,7 @@ import mate.academy.carsharing.app.exception.MessageDispatchException;
 import mate.academy.carsharing.app.mapper.RentalMapper;
 import mate.academy.carsharing.app.model.Car;
 import mate.academy.carsharing.app.model.Rental;
+import mate.academy.carsharing.app.model.Role;
 import mate.academy.carsharing.app.model.User;
 import mate.academy.carsharing.app.repository.CarRepository;
 import mate.academy.carsharing.app.repository.PaymentRepository;
@@ -49,55 +49,38 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalResponseDto createRental(Authentication authentication,
                                           CreateRentalRequestDto requestDto) {
-        String username;
-        Object principal = authentication.getPrincipal();
 
-        if (principal instanceof User) {
-            username = ((User) principal).getEmail();
-        } else if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
-
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        if (rentalRepository.existsByUserIdAndIsActiveIsTrue(user.getId())) {
-            throw new ForbiddenOperationException("You already have a rental car");
-        }
+        User user = getUserFromAuthentication(authentication);
+        checkUserHasNoActiveRental(user);
 
         Car car = getCarFromDB(requestDto.carId());
+        checkCarInventory(car);
 
-        if (car.getInventory() == INVALID_LIMIT) {
-            throw new InsufficientQuantityException("Insufficient quantity of cars");
-        }
+        Rental rental = buildRental(requestDto, user, car);
 
-        Rental rental = rentalMapper.toModel(requestDto);
-        rental.setRentalDate(timeProvider.now());
-        rental.setReturnDate(requestDto.returnDate());
-        rental.setIsActive(ACTIVE);
-        rental.setUser(user);
-        car.setInventory(car.getInventory() - 1);
-        rental.setCar(car);
-
-        try {
-            messageDispatchService.sentMessageCreateRental(rental);
-        } catch (MessageDispatchException e) {
-            log.info("Can't send the notification to user by id {}", user.getId());
-        }
+        sendCreateRentalMessage(rental, user);
 
         return rentalMapper.toResponseDto(rentalRepository.save(rental));
     }
 
     @Override
-    public RentalResponseDto getRentalById(Long userId, List<String> roles, Long rentalId) {
-        Rental rental = getRentalFromDB(rentalId);
+    public RentalResponseDto getRentalById(Long userId, Long rentalId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User"
+                        + " not found with id: " + userId));
 
-        boolean isManager = roles.contains("ROLE_MANAGER");
+        boolean isManager = user.getRoles().stream()
+                .anyMatch(role -> role.getName() == Role.RoleName.MANAGER);
 
-        if (!isManager && !rental.getUser().getId().equals(userId)) {
-            throw new ForbiddenOperationException("Access is denied");
+        Rental rental;
+
+        if (isManager) {
+            rental = rentalRepository.findById(rentalId)
+                    .orElseThrow(() -> new EntityNotFoundException("Rental"
+                            + " not found with id: " + rentalId));
+        } else {
+            rental = rentalRepository.findByIdAndUserId(rentalId, userId)
+                    .orElseThrow(() -> new ForbiddenOperationException("Access is denied"));
         }
 
         return rentalMapper.toResponseDto(rental);
@@ -147,5 +130,52 @@ public class RentalServiceImpl implements RentalService {
         return rentalRepository.findById(rentalId)
                 .orElseThrow(()
                         -> new EntityNotFoundException("Rental not found with id: " + rentalId));
+    }
+
+    private User getUserFromAuthentication(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        String username;
+
+        if (principal instanceof User u) {
+            username = u.getEmail();
+        } else if (principal instanceof UserDetails ud) {
+            username = ud.getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    }
+
+    private void checkUserHasNoActiveRental(User user) {
+        if (rentalRepository.existsByUserIdAndIsActiveIsTrue(user.getId())) {
+            throw new ForbiddenOperationException("You already have a rental car");
+        }
+    }
+
+    private void checkCarInventory(Car car) {
+        if (car.getInventory() == INVALID_LIMIT) {
+            throw new InsufficientQuantityException("Insufficient quantity of cars");
+        }
+    }
+
+    private Rental buildRental(CreateRentalRequestDto requestDto, User user, Car car) {
+        Rental rental = rentalMapper.toModel(requestDto);
+        rental.setRentalDate(timeProvider.now());
+        rental.setReturnDate(requestDto.returnDate());
+        rental.setIsActive(ACTIVE);
+        rental.setUser(user);
+        car.setInventory(car.getInventory() - 1);
+        rental.setCar(car);
+        return rental;
+    }
+
+    private void sendCreateRentalMessage(Rental rental, User user) {
+        try {
+            messageDispatchService.sentMessageCreateRental(rental);
+        } catch (MessageDispatchException e) {
+            log.info("Can't send the message to user by id {}", user.getId());
+        }
     }
 }

@@ -24,9 +24,7 @@ public class CarServiceImpl implements CarService {
     @Override
     public CarDto addCar(CreateCarDto createCarDto) {
         Car car = carMapper.toModel(createCarDto);
-        System.out.println("Mapped car = " + car);
         Car saved = carRepository.save(car);
-        System.out.println("Saved = " + saved);
         return carMapper.toDto(saved);
     }
 

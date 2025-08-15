@@ -9,10 +9,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
-import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
-import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserPasswordRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
+import mate.academy.carsharing.app.dto.user.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.exception.EntityNotFoundException;
 import mate.academy.carsharing.app.model.Role;
@@ -137,8 +137,7 @@ public class UserServiceTest {
     @DisplayName("UpdateUserRole_changesUserRole: update user role.")
     void updateUserRole_changesUserRole() {
         if (roleRepository.findByName(Role.RoleName.MANAGER).isEmpty()) {
-            Role role = new Role();
-            role.setName(Role.RoleName.MANAGER);
+            Role role = new Role(Role.RoleName.MANAGER);
             roleRepository.save(role);
         }
 

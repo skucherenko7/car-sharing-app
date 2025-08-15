@@ -51,46 +51,89 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(PaymentException.class)
     public ResponseEntity<ErrorResponseDto> handlePaymentException(PaymentException ex) {
-        return buildErrorResponse(ex, HttpStatus.PAYMENT_REQUIRED);
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.PAYMENT_REQUIRED.value(),
+                HttpStatus.PAYMENT_REQUIRED.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.PAYMENT_REQUIRED);
     }
 
     @ExceptionHandler(SessionFallException.class)
     public ResponseEntity<ErrorResponseDto> handleSessionFallException(SessionFallException ex) {
-        return buildErrorResponse(ex, HttpStatus.SERVICE_UNAVAILABLE);
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(InsufficientQuantityException.class)
     public ResponseEntity<ErrorResponseDto>
-                handleInsufficientQuantityException(InsufficientQuantityException ex) {
-        return buildErrorResponse(ex, HttpStatus.NOT_FOUND);
+                    handleInsufficientQuantityException(InsufficientQuantityException ex) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ForbiddenOperationException.class)
     public ResponseEntity<ErrorResponseDto>
-                handleForbiddenOperationException(ForbiddenOperationException ex) {
-        return buildErrorResponse(ex, HttpStatus.FORBIDDEN);
+                    handleForbiddenOperationException(ForbiddenOperationException ex) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponseDto>
-                handleEntityNotFoundException(EntityNotFoundException ex) {
-        return buildErrorResponse(ex, HttpStatus.NOT_FOUND);
+                    handleEntityNotFoundException(EntityNotFoundException ex) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<ErrorResponseDto> handleRegistrationException(RegistrationException ex) {
-        return buildErrorResponse(ex, HttpStatus.CONFLICT);
+    public ResponseEntity<ErrorResponseDto>
+                    handleRegistrationException(RegistrationException ex) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MessageDispatchException.class)
     public ResponseEntity<ErrorResponseDto>
-            handleMessageDispatchException(MessageDispatchException ex) {
-        return buildErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+                    handleMessageDispatchException(MessageDispatchException ex) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponseDto>
-            handleBadCredentialsException(BadCredentialsException ex) {
+                    handleBadCredentialsException(BadCredentialsException ex) {
         ErrorResponseDto response = new ErrorResponseDto(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Invalid credentials",
@@ -98,15 +141,5 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-    }
-
-    private ResponseEntity<ErrorResponseDto> buildErrorResponse(Exception ex, HttpStatus status) {
-        ErrorResponseDto response = new ErrorResponseDto(
-                status.value(),
-                status.getReasonPhrase(),
-                List.of(ex.getMessage()),
-                LocalDateTime.now()
-        );
-        return new ResponseEntity<>(response, status);
     }
 }

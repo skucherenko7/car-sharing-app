@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
-import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserPasswordRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
 import mate.academy.carsharing.app.model.Role;
 import org.junit.jupiter.api.DisplayName;

@@ -29,12 +29,13 @@ public class Car {
     @Column(nullable = false)
     private String model;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Type type;
     @Column(nullable = false)
     private int inventory;
     @Column(name = "daily_fee", nullable = false)
     private BigDecimal dailyFee;
-    @Column(name = "is_deleted", nullable = false)
+    @Column(nullable = false)
     private boolean isDeleted = false;
 
     public enum Type {

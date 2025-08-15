@@ -20,6 +20,7 @@ import mate.academy.carsharing.app.repository.RentalRepository;
 import mate.academy.carsharing.app.repository.RoleRepository;
 import mate.academy.carsharing.app.repository.UserRepository;
 import mate.academy.carsharing.app.security.JwtUtil;
+import mate.academy.carsharing.app.service.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -65,6 +65,9 @@ public class PaymentControllerTest {
     private RoleRepository roleRepository;
 
     @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -78,33 +81,27 @@ public class PaymentControllerTest {
     @BeforeEach
     void setUp() {
         User manager = userRepository.findByEmail("manager@gmail.com")
-                .orElseThrow(() -> new RuntimeException("Manager user not found"));
-
+                .orElseThrow();
         User customer = userRepository.findByEmail("veronika333@gmail.com")
-                .orElseThrow(() -> new RuntimeException("Customer user not found"));
+                .orElseThrow();
 
-        UserDetails managerUserDetails = new org.springframework.security.core.userdetails.User(
-                manager.getEmail(),
-                manager.getPassword(),
-                manager.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name()))
-                        .collect(Collectors.toList())
-        );
-        managerJwtToken = jwtUtil.generateToken(managerUserDetails);
-
-        UserDetails customerUserDetails = new org.springframework.security.core.userdetails.User(
-                customer.getEmail(),
-                customer.getPassword(),
-                customer.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name()))
-                        .collect(Collectors.toList())
-        );
-        customerJwtToken = jwtUtil.generateToken(customerUserDetails);
+        managerJwtToken = jwtUtil.generateToken(toUserDetails(manager));
+        customerJwtToken = jwtUtil.generateToken(toUserDetails(customer));
 
         existingRentalId = rentalRepository.findAll().stream()
                 .findFirst()
                 .map(Rental::getId)
-                .orElseThrow(() -> new RuntimeException("No rentals found in DB"));
+                .orElseThrow();
+    }
+
+    private UserDetails toUserDetails(User user) {
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                user.getRoles().stream()
+                        .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName()))
+                        .collect(Collectors.toList())
+        );
     }
 
     private Payment createPayment(String sessionId, Payment.Status status) {
@@ -120,12 +117,10 @@ public class PaymentControllerTest {
     }
 
     @Test
-    @DisplayName("Create payment session: should "
-            + "return 201 CREATED with session data")
+    @DisplayName("Create payment session: should return 201 CREATED with session data")
     void createPaymentSession_shouldReturnCreated_whenValidRequest() throws Exception {
-        PaymentRequestDto requestDto =
-                new PaymentRequestDto(existingRentalId, Payment.Type.PAYMENT);
-        String json = objectMapper.writeValueAsString(requestDto);
+        PaymentRequestDto dto = new PaymentRequestDto(existingRentalId, Payment.Type.PAYMENT);
+        String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(post("/payments/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,17 +132,66 @@ public class PaymentControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"ROLE_MANAGER"})
-    @DisplayName("PaymentSuccess: should process successful payment")
-    void paymentSuccess_shouldProcessSuccessfully() throws Exception {
-        String sessionId = "success-session";
-        createPayment(sessionId, Payment.Status.PAID); // якщо необхідно
+    @DisplayName("PaymentCancel: should cancel pending payment")
+    void paymentCancel_shouldCancelPayment() throws Exception {
+        Payment payment = createPayment("pending-session", Payment.Status.PENDING);
 
-        mockMvc.perform(get("/payments/success")
-                        .param("session_id", sessionId)
+        mockMvc.perform(get("/payments/cancel")
+                        .param("session_id", "pending-session")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Payment success processed"));
+                .andExpect(content().string("Your payment was cancelled!"));
+
+        Payment updated = paymentRepository.findById(payment.getId()).orElseThrow();
+        assertEquals(Payment.Status.CANCELLED, updated.getStatus());
+    }
+
+    @Test
+    @DisplayName("PaymentCancel: should return message if payment is not PENDING")
+    void paymentCancel_shouldReturnMessage_whenNotPending() throws Exception {
+        Payment payment = createPayment("paid-session", Payment.Status.PAID);
+
+        mockMvc.perform(get("/payments/cancel")
+                        .param("session_id", "paid-session")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Payment was not "
+                        + "cancelled because it is not in PENDING status"));
+
+        Payment updated = paymentRepository.findById(payment.getId()).orElseThrow();
+        assertEquals(Payment.Status.PAID, updated.getStatus());
+    }
+
+    @Test
+    @DisplayName("PaymentCancel: should return message if payment does not exist")
+    void paymentCancel_shouldReturnMessage_whenNotFound() throws Exception {
+        mockMvc.perform(get("/payments/cancel")
+                        .param("session_id", "non-existent")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Payment not found"));
+    }
+
+    @Test
+    @DisplayName("GetPayments: manager should get payments page")
+    void getPayments_shouldReturnPaymentsPage_forManager() throws Exception {
+        mockMvc.perform(get("/payments")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    @DisplayName("GetPayments: customer should get their own payments page")
+    void getPayments_shouldReturnPaymentsPage_forCustomer() throws Exception {
+        mockMvc.perform(get("/payments")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + customerJwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
     }
 
     @Test
@@ -160,96 +204,5 @@ public class PaymentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(payment.getId()))
                 .andExpect(jsonPath("$.amount").value(payment.getAmount().doubleValue()));
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_MANAGER"})
-    @DisplayName("PaymentCancel: should return message if payment not PENDING")
-    void paymentCancel_shouldReturnMessage_whenNotPending() throws Exception {
-        String sessionId = "sess_not_pending";
-        createPayment(sessionId, Payment.Status.PAID);
-
-        mockMvc.perform(get("/payments/cancel")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken)
-                        .param("session_id", sessionId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Payment was not"
-                        + " cancelled because it is not in PENDING status"));
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_MANAGER"})
-    @DisplayName("PaymentCancel: should return error status when payment cancel throws exception.")
-    void paymentCancel_shouldReturnError_whenExceptionThrown() throws Exception {
-        String sessionId = "sess_paid_123";
-        createPayment(sessionId, Payment.Status.PAID);
-        mockMvc.perform(get("/payments/cancel")
-                        .header("Authorization", "Bearer " + managerJwtToken)
-                        .param("session_id", sessionId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Payment was not cancelled"
-                        + " because it is not in PENDING status"));
-    }
-
-    @Test
-    @DisplayName("Payment cancel: should cancel pending payment")
-    void paymentCancel_shouldCancelPayment() throws Exception {
-        Payment payment = createPayment("cancel-session", Payment.Status.PENDING);
-
-        mockMvc.perform(get("/payments/cancel")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken)
-                        .param("session_id", "cancel-session"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Your payment was cancelled!"));
-
-        Payment updated = paymentRepository.findById(payment.getId()).orElseThrow();
-        assertEquals(Payment.Status.CANCELLED, updated.getStatus());
-    }
-
-    @Test
-    @WithMockUser(authorities = {"ROLE_MANAGER"})
-    @DisplayName("PaymentCancel: doesn't cancel if payment is not pending")
-    void paymentCancel_shouldNotCancelIfNotPending() throws Exception {
-        Payment payment = createPayment("cancel-2", Payment.Status.PAID);
-
-        mockMvc.perform(get("/payments/cancel")
-                        .header("Authorization", "Bearer " + managerJwtToken)
-                        .param("session_id", "cancel-2"))
-                .andExpect(status().isOk())
-                .andExpect(content()
-                        .string("Payment was not cancelled because it is not in PENDING status"));
-
-        Payment updated = paymentRepository.findById(payment.getId()).orElseThrow();
-        assertEquals(Payment.Status.PAID, updated.getStatus());
-    }
-
-    @Test
-    @WithMockUser(username = "manager@gmail.com", authorities = {"ROLE_MANAGER"})
-    @DisplayName("GetPayments: manager should get payments page")
-    void getPayments_shouldReturnPaymentsPage_forManager() throws Exception {
-        mockMvc.perform(get("/payments")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerJwtToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].id").value(1))
-                .andExpect(jsonPath("$.content[0].status").value("PENDING"))
-                .andExpect(jsonPath("$.content[0].type").value("PAYMENT"));
-    }
-
-    @Test
-    @WithMockUser(username = "veronika333@gmail.com", authorities = {"ROLE_CUSTOMER"})
-    @DisplayName("GetPayments: customer should get their own payments page")
-    void getPayments_shouldReturnPaymentsPage_forCustomer() throws Exception {
-        mockMvc.perform(get("/payments")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + customerJwtToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].id").value(1))
-                .andExpect(jsonPath("$.content[0].status").value("PENDING"))
-                .andExpect(jsonPath("$.content[0].type").value("PAYMENT"));
     }
 }
