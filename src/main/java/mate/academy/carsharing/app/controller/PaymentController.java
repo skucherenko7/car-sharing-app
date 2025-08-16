@@ -1,7 +1,6 @@
 package mate.academy.carsharing.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,10 +11,10 @@ import mate.academy.carsharing.app.dto.payment.PaymentRequestDto;
 import mate.academy.carsharing.app.dto.payment.PaymentResponseDto;
 import mate.academy.carsharing.app.dto.payment.PaymentWithSessionDto;
 import mate.academy.carsharing.app.exception.MessageDispatchException;
-import mate.academy.carsharing.app.model.User;
+import mate.academy.carsharing.app.model.Payment;
 import mate.academy.carsharing.app.repository.PaymentRepository;
-import mate.academy.carsharing.app.repository.UserRepository;
 import mate.academy.carsharing.app.service.PaymentService;
+import mate.academy.carsharing.app.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,8 +40,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
-    private final UserRepository userRepository;
-    private PaymentRepository paymentRepository;
+    private final UserService userService;
+    private final PaymentRepository paymentRepository;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
@@ -58,35 +56,31 @@ public class PaymentController {
     @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @Operation(summary = "Stripe success redirect",
             description = "Stripe redirects here after successful payment")
-    public ResponseEntity<String> paymentSuccess(@RequestParam("session_id") String sessionId) {
-        try {
-            paymentService.paymentSuccess(sessionId);
-            return ResponseEntity.ok("Payment success processed");
-        } catch (MessageDispatchException e) {
-            throw new RuntimeException("Failed to dispatch payment message", e);
-        }
+    public ResponseEntity<String> paymentSuccess(@RequestParam("session_id") String sessionId)
+            throws MessageDispatchException {
+        paymentService.paymentSuccess(sessionId);
+
+        return ResponseEntity.ok("Payment success processed");
     }
 
     @GetMapping("/cancel")
     @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @Operation(summary = "Stripe cancel redirect",
             description = "Stripe redirects here after cancelled payment")
-    public ResponseEntity<String> paymentCancel(
-            @Parameter(description = "Stripe session ID", required = true)
-            @RequestParam("session_id") String sessionId) {
-        try {
-            boolean wasCancelled = paymentService.paymentCancel(sessionId);
-            if (wasCancelled) {
-                return ResponseEntity.ok("Your payment was cancelled!");
-            }
-            return ResponseEntity.ok("Payment was not "
-                    + "cancelled because it is not in PENDING status");
-        } catch (ResponseStatusException ex) {
-            if (ex.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                return ResponseEntity.ok(ex.getReason());
-            }
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+    public ResponseEntity<String> paymentCancel(@RequestParam("session_id") String sessionId) {
+        Payment payment = paymentRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Payment not found"));
+
+        if (payment.getStatus() != Payment.Status.PENDING) {
+            return ResponseEntity.ok("Payment was not"
+                    + " cancelled because it is not in PENDING status");
         }
+
+        payment.setStatus(Payment.Status.CANCELLED);
+        paymentRepository.save(payment);
+
+        return ResponseEntity.ok("Your payment was cancelled!");
     }
 
     @GetMapping("/{paymentId:\\d+}")
@@ -113,9 +107,6 @@ public class PaymentController {
     }
 
     private Long getUserId(Authentication authentication) {
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return user.getId();
+        return userService.getUserFromAuthentication(authentication).getId();
     }
 }

@@ -8,7 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,17 +19,15 @@ import org.springframework.security.core.GrantedAuthority;
 @Setter
 @Entity
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private RoleName name;
-
-    public Role() {
-    }
 
     public Role(RoleName role) {
         this.name = role;

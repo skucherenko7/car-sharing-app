@@ -1,6 +1,5 @@
 package mate.academy.carsharing.app.service;
 
-import java.util.List;
 import mate.academy.carsharing.app.dto.rental.CreateRentalRequestDto;
 import mate.academy.carsharing.app.dto.rental.RentalActualReturnDateResponseDto;
 import mate.academy.carsharing.app.dto.rental.RentalResponseDto;
@@ -12,7 +11,7 @@ public interface RentalService {
     RentalResponseDto createRental(
             Authentication authentication, CreateRentalRequestDto requestDto);
 
-    RentalResponseDto getRentalById(Long userId, List<String> roles, Long rentalId);
+    RentalResponseDto getRentalById(Long userId, Long rentalId);
 
     Page<RentalResponseDto> findAllActiveRentals(Pageable pageable);
 

@@ -24,8 +24,10 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Type type;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rental_id", nullable = false)

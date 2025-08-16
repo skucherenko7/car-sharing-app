@@ -29,16 +29,14 @@ public class AuthenticationUtilTest {
     }
 
     public static Role roleCustomer() {
-        Role role = new Role();
+        Role role = new Role(Role.RoleName.CUSTOMER);
         role.setId(2L);
-        role.setName(Role.RoleName.CUSTOMER);
         return role;
     }
 
     public static Role roleManager() {
-        Role role = new Role();
+        Role role = new Role(Role.RoleName.MANAGER);
         role.setId(1L);
-        role.setName(Role.RoleName.MANAGER);
         return role;
     }
 }

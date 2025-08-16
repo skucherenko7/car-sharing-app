@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 import mate.academy.carsharing.app.dto.rental.CreateRentalRequestDto;
 import mate.academy.carsharing.app.dto.rental.RentalActualReturnDateResponseDto;
@@ -139,14 +138,15 @@ public class RentalServiceTest {
     @Test
     @DisplayName("GetRentalById: Returns the rental if the user has access.")
     void getRentalById_shouldReturnRentalResponse_whenUserHasAccess() {
-        RentalResponseDto rentalResponse = rentalService.createRental(authentication,
-                new CreateRentalRequestDto(LocalDate.now().plusDays(3), car.getId()));
+        RentalResponseDto rentalResponse = rentalService.createRental(
+                authentication,
+                new CreateRentalRequestDto(LocalDate.now().plusDays(3), car.getId())
+        );
 
         Long rentalId = rentalResponse.id();
         Long userId = user.getId();
 
-        List<String> roles = List.of("ROLE_CUSTOMER");
-        RentalResponseDto result = rentalService.getRentalById(userId, roles, rentalId);
+        RentalResponseDto result = rentalService.getRentalById(userId, rentalId);
 
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(rentalId);
@@ -173,10 +173,8 @@ public class RentalServiceTest {
         Long rentalId = rentalResponse.id();
         Long userId = user2.getId();
 
-        List<String> roles = List.of("ROLE_CUSTOMER");
-
         assertThrows(ForbiddenOperationException.class, () ->
-                rentalService.getRentalById(userId, roles, rentalId));
+                rentalService.getRentalById(userId, rentalId));
     }
 
     @Test
@@ -268,10 +266,8 @@ public class RentalServiceTest {
     void getRentalById_shouldThrow_whenRentalNotExist() {
         Long nonExistingRentalId = 999L;
 
-        List<String> roles = List.of("ROLE_CUSTOMER");
-
         assertThrows(RuntimeException.class, () ->
-                rentalService.getRentalById(user.getId(), roles, nonExistingRentalId));
+                rentalService.getRentalById(user.getId(), nonExistingRentalId));
     }
 
     @Test

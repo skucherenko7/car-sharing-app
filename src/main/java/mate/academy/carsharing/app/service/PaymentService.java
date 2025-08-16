@@ -6,6 +6,7 @@ import mate.academy.carsharing.app.dto.payment.PaymentResponseDto;
 import mate.academy.carsharing.app.dto.payment.PaymentWithSessionDto;
 import mate.academy.carsharing.app.exception.MessageDispatchException;
 import mate.academy.carsharing.app.exception.PaymentException;
+import mate.academy.carsharing.app.model.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -20,5 +21,7 @@ public interface PaymentService {
 
     void paymentSuccess(String sessionId) throws MessageDispatchException;
 
-    public boolean paymentCancel(String sessionId) throws PaymentException;
+    boolean paymentCancel(String sessionId) throws PaymentException;
+
+    Payment findBySessionId(String sessionId);
 }
