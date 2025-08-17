@@ -139,14 +139,33 @@ Do you want to quickly run a Spring Boot application locally? Here is a step-by-
    - TelegramBot;
    - Stripe.
 
-### 2. Generate a Spring Boot app skeleton with the necessary dependencies using the official starter project generator
-### Spring Initializr. To open the new project in IntelliJ IDEA.
+### 2. Fork and clone a Project on GitHub.
+Forking creates a personal copy of someone else's repository under your GitHub account.
+- [go to the GitHub page of the repository you want to fork]https://github.com/skucherenko7/car-sharing-app);
+- click the "Fork" button in the upper-right corner;
+- select your GitHub account (or organization) to create the fork. 
 
-### 3. To create the project from GitHub (create a new repository [go to the page]: https://github.com/skucherenko7/car-sharing-app
+These steps helped you get your own copy of the project.
 
-### 4.Register the project in IntelliJ IDEA with a link to the remote repository, thus linking them.
+Make sure you have Git installed on your machine
 
-### 5. Environment settings.
+- You can check by running: 
+```
+git --version
+```
+
+Cloning downloads your forked project to your local machine so you can run or work on it.
+
+- on your forked repository page (on your GitHub account), click the "Code" button;
+- copy the URL under HTTPS or SSH;
+- open a terminal (or Git Bash) on your computer;
+- Run the following command:
+```
+git clone https://github.com/skucherenko7/car-sharing-app.git
+
+```
+
+### 3. Environment settings.
 
 In the root folder, create an .env file with the following content:
 ```
@@ -166,7 +185,7 @@ SPRING_DOCKER_PORT=your_data
 DEBUG_PORT=your_data
 ```
 
-### 6. Launching the application using Maven or Docker:
+### 4. Launching the application using Maven or Docker:
 
 **Run the Application Using Maven**
 - Use the following command to launch the Spring Boot application:

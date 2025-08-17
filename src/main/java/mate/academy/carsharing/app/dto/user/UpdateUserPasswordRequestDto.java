@@ -1,4 +1,4 @@
-package mate.academy.carsharing.app.dto;
+package mate.academy.carsharing.app.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

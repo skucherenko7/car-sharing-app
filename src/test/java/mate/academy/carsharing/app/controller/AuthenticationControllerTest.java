@@ -9,9 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mate.academy.carsharing.app.dto.UserLoginRequestDto;
-import mate.academy.carsharing.app.dto.UserLoginResponseDto;
-import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
+import mate.academy.carsharing.app.dto.user.UserLoginRequestDto;
+import mate.academy.carsharing.app.dto.user.UserLoginResponseDto;
+import mate.academy.carsharing.app.dto.user.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.example.UserUtilTest;
 import mate.academy.carsharing.app.exception.CustomGlobalExceptionHandler;

@@ -137,8 +137,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public boolean paymentCancel(String sessionId) {
         Payment payment = paymentRepository.findBySessionId(sessionId)
-                .orElseThrow(()
-                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Payment not found"));
 
         if (payment.getStatus() != Payment.Status.PENDING) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -148,6 +148,12 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(Payment.Status.CANCELLED);
         paymentRepository.save(payment);
         return true;
+    }
+
+    @Override
+    public Payment findBySessionId(String sessionId) {
+        return paymentRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new PaymentException("Payment not found"));
     }
 
     private BigDecimal calculateAmountConsideringActiveRental(Rental rental, Payment.Type type) {

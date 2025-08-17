@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
-import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
-import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserPasswordRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
+import mate.academy.carsharing.app.dto.user.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.exception.EntityNotFoundException;
 import mate.academy.carsharing.app.exception.RegistrationException;
@@ -43,15 +43,12 @@ public class UserServiceImpl implements UserService {
             throw new RegistrationException("This email already exists");
         }
 
-        User user = new User();
-        user.setEmail(requestDto.email());
+        User user = userMapper.fromRegisterRequestDto(requestDto);
         user.setPassword(passwordEncoder.encode(requestDto.password()));
-        user.setFirstName(requestDto.firstName());
-        user.setLastName(requestDto.lastName());
-        user.setTelegramChatId(requestDto.telegramChatId());
 
         Role defaultRole = roleRepository.findByName(Role.RoleName.CUSTOMER)
-                .orElseThrow(() -> new EntityNotFoundException("Default role CUSTOMER not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Default role " + Role.RoleName.CUSTOMER + " not found"));
 
         Set<Role> roles = new HashSet<>();
         roles.add(defaultRole);

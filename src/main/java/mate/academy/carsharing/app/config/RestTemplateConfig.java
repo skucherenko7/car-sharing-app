@@ -1,4 +1,4 @@
-package mate.academy.carsharing.app.mapper;
+package mate.academy.carsharing.app.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

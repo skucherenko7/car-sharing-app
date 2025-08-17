@@ -5,13 +5,13 @@ import static mate.academy.carsharing.app.example.AuthenticationUtilTest.roleMan
 
 import java.util.List;
 import java.util.Set;
-import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
-import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
-import mate.academy.carsharing.app.dto.UserLoginRequestDto;
-import mate.academy.carsharing.app.dto.UserLoginResponseDto;
-import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserPasswordRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
 import mate.academy.carsharing.app.dto.user.UserDto;
+import mate.academy.carsharing.app.dto.user.UserLoginRequestDto;
+import mate.academy.carsharing.app.dto.user.UserLoginResponseDto;
+import mate.academy.carsharing.app.dto.user.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.model.Role;
 import mate.academy.carsharing.app.model.User;

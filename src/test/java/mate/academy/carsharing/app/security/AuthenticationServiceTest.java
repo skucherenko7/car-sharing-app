@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import mate.academy.carsharing.app.dto.UserLoginRequestDto;
-import mate.academy.carsharing.app.dto.UserLoginResponseDto;
+import mate.academy.carsharing.app.dto.user.UserLoginRequestDto;
+import mate.academy.carsharing.app.dto.user.UserLoginResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

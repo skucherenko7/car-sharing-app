@@ -1,10 +1,10 @@
 package mate.academy.carsharing.app.service;
 
 import java.util.Optional;
-import mate.academy.carsharing.app.dto.UpdateUserPasswordRequestDto;
-import mate.academy.carsharing.app.dto.UpdateUserRequestDto;
-import mate.academy.carsharing.app.dto.UserRegisterRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserPasswordRequestDto;
+import mate.academy.carsharing.app.dto.user.UpdateUserRequestDto;
 import mate.academy.carsharing.app.dto.user.UpdateUserRoleRequestDto;
+import mate.academy.carsharing.app.dto.user.UserRegisterRequestDto;
 import mate.academy.carsharing.app.dto.user.UserResponseDto;
 import mate.academy.carsharing.app.exception.RegistrationException;
 import mate.academy.carsharing.app.model.User;
