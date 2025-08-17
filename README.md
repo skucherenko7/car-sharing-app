@@ -192,7 +192,7 @@ Now that Spring Boot application is running, you can use Postman (or any other R
 
 ### All Postman collections
 
-[Postman collections] (CarSharingApp.postman_collection.json)
+[Postman collections](CarSharingApp.postman_collection.json)
 
 ---
 
