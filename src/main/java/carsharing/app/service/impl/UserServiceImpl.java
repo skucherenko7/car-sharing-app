@@ -39,23 +39,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto register(UserRegisterRequestDto requestDto)
             throws RegistrationException {
-        if (userRepository.existsByEmail(requestDto.email())) {
-            throw new RegistrationException("This email already exists");
+        String email = requestDto.email();
+        if (userRepository.existsByEmail(email)) {
+            throw new RegistrationException("The email '" + email + "' already exists");
         }
-
         User user = userMapper.fromRegisterRequestDto(requestDto);
         user.setPassword(passwordEncoder.encode(requestDto.password()));
 
         Role defaultRole = roleRepository.findByName(Role.RoleName.CUSTOMER)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Default role " + Role.RoleName.CUSTOMER + " not found"));
+                        "Default role CUSTOMER not found"));
 
         Set<Role> roles = new HashSet<>();
         roles.add(defaultRole);
         user.setRoles(roles);
 
-        User savedUser = userRepository.save(user);
-        return userMapper.toResponseDto(savedUser);
+        return userMapper.toResponseDto(userRepository.save(user));
     }
 
     @Override
@@ -70,9 +69,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateUser(Long id, UpdateUserRequestDto requestDto) {
-        User user = getUserById(id);
-        userMapper.updateUser(user, requestDto);
-        return userMapper.toResponseDto(userRepository.save(user));
+        userMapper.updateUser(getUserById(id), requestDto);
+        return userMapper.toResponseDto(userRepository.save(getUserById(id)));
     }
 
     @Override
@@ -83,11 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto updateUserRole(Long id, UpdateUserRoleRequestDto requestDto) {
         User user = getUserById(id);
-        Role newRole = getRoleByName(requestDto.role());
-
-        Set<Role> newRoles = new HashSet<>();
-        newRoles.add(newRole);
-        user.setRoles(newRoles);
+        user.setRoles(new HashSet<>(Set.of(getRoleByName(requestDto.role()))));
 
         return userMapper.toResponseDto(userRepository.save(user));
     }

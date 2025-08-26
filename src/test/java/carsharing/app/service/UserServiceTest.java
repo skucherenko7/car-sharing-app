@@ -1,12 +1,7 @@
 package carsharing.app.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import carsharing.app.dto.user.UpdateUserPasswordRequestDto;
 import carsharing.app.dto.user.UpdateUserRequestDto;
@@ -14,6 +9,7 @@ import carsharing.app.dto.user.UpdateUserRoleRequestDto;
 import carsharing.app.dto.user.UserRegisterRequestDto;
 import carsharing.app.dto.user.UserResponseDto;
 import carsharing.app.exception.EntityNotFoundException;
+import carsharing.app.exception.RegistrationException;
 import carsharing.app.model.Role;
 import carsharing.app.model.User;
 import carsharing.app.repository.RoleRepository;
@@ -26,7 +22,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,108 +54,109 @@ public class UserServiceTest {
     @BeforeEach
     void setUp() {
         maxRequest = new UserRegisterRequestDto(
-                "max222@gmail.com", "Password222",
-                "Password222", "Max", "Maxi", "1234567892"
-        );
+                "max222@gmail.com", "Password222", "Password222",
+                "Max", "Maxi", "1234567892");
         veronikaRequest = new UserRegisterRequestDto(
-                "veronika333@gmail.com", "Password333",
-                "Password333", "Veronika", "Verona", "1234567893"
-        );
+                "veronika333@gmail.com", "Password333", "Password333",
+                "Veronika", "Verona", "1234567893");
     }
 
     @Test
-    @DisplayName("Register_validUser_success: successful user registration.")
+    @DisplayName("Register_validUser_success: successful user registration")
     void register_validUser_success() {
         UserResponseDto dto = userService.register(veronikaRequest);
 
-        assertEquals("veronika333@gmail.com", dto.email());
+        assertThat(dto.email()).isEqualTo("veronika333@gmail.com");
 
-        Optional<User> optionalUser = userRepository.findByEmail(dto.email());
-        assertTrue(optionalUser.isPresent());
+        User user = userRepository.findByEmail(dto.email()).orElseThrow();
+        assertThat(user.getPassword()).isNotEqualTo("Password333");
 
-        User user = optionalUser.get();
-        assertNotEquals("Password333", user.getPassword());
-
-        boolean hasCustomerRole = user.getRoles().stream()
-                .anyMatch(role -> role.getName().equals(Role.RoleName.CUSTOMER));
-        assertTrue(hasCustomerRole);
+        assertThat(user.getRoles())
+                .extracting(Role::getName)
+                .contains(Role.RoleName.CUSTOMER);
     }
 
     @Test
-    @DisplayName("FindByEmail_existingEmail_returnsUserDto: search for user by existing email.")
+    @DisplayName("Register_existingEmail_throws RegistrationException")
+    void register_existingEmail_throwsException() {
+        userService.register(veronikaRequest);
+
+        RegistrationException ex = assertThrows(RegistrationException.class,
+                () -> userService.register(veronikaRequest));
+
+        assertThat(ex.getMessage())
+                .contains("The email '" + veronikaRequest.email() + "' already exists");
+    }
+
+    @Test
+    @DisplayName("Register_noDefaultRole_throws EntityNotFoundException")
+    void register_noDefaultRole_throwsException() {
+        roleRepository.findByName(Role.RoleName.CUSTOMER)
+                .ifPresent(roleRepository::delete);
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> userService.register(veronikaRequest));
+
+        assertThat(ex.getMessage())
+                .contains("Default role CUSTOMER not found");
+    }
+
+    @Test
+    @DisplayName("FindByEmail_existingEmail_returnsUserDto")
     void findByEmail_existingEmail_returnsUserDto() {
         userService.register(maxRequest);
 
         Optional<UserResponseDto> user = userService.findByEmail("max222@gmail.com");
 
-        assertTrue(user.isPresent());
-        assertEquals("max222@gmail.com", user.get().email());
+        assertThat(user).isPresent();
+        assertThat(user.get().email()).isEqualTo("max222@gmail.com");
     }
 
     @Test
-    @DisplayName("FindUserById_validId_returnsUserDto: find user by valid ID.")
+    @DisplayName("FindUserById_validId_returnsUserDto")
     void findUserById_validId_returnsUserDto() {
         UserResponseDto saved = userService.register(maxRequest);
         UserResponseDto found = userService.findUserById(saved.id());
 
-        assertEquals(saved.id(), found.id());
+        assertThat(found.id()).isEqualTo(saved.id());
     }
 
     @Test
-    @DisplayName("UpdateUser_validData_updatesUser: update user data.")
+    @DisplayName("UpdateUser_validData_updatesUser")
     void updateUser_validData_updatesUser() {
         UserResponseDto saved = userService.register(maxRequest);
 
         UpdateUserRequestDto update = new UpdateUserRequestDto(
-                "max222@gmail.com", "Max", "Maxym", "1234567892"
-        );
+                "max222@gmail.com", "Max", "Maxym", "1234567892");
 
         UserResponseDto updated = userService.updateUser(saved.id(), update);
 
-        assertEquals("Max", updated.firstName());
-        assertEquals("Maxym", updated.lastName());
+        assertThat(updated.firstName()).isEqualTo("Max");
+        assertThat(updated.lastName()).isEqualTo("Maxym");
     }
 
     @Test
-    @DisplayName("GetAllUsers_returnsAllUsers: getting a list of all users.")
-    void getAllUsers_returnsAllUsers() {
-        userService.register(veronikaRequest);
-        userService.register(maxRequest);
-
-        Page<UserResponseDto> result = userService.getAllUsers(PageRequest.of(0, 10));
-
-        assertFalse(result.isEmpty());
-        assertTrue(result.getContent().size() >= 2);
-    }
-
-    @Test
-    @DisplayName("UpdateUserRole_changesUserRole: update user role.")
+    @DisplayName("UpdateUserRole_changesUserRole")
     void updateUserRole_changesUserRole() {
-        if (roleRepository.findByName(Role.RoleName.MANAGER).isEmpty()) {
-            Role role = new Role(Role.RoleName.MANAGER);
-            roleRepository.save(role);
-        }
+        Role role = roleRepository.findByName(Role.RoleName.MANAGER)
+                .orElseGet(() -> roleRepository.save(new Role(Role.RoleName.MANAGER)));
 
         UserResponseDto saved = userService.register(
-                new UserRegisterRequestDto("manager@gmail.com", "Password111", "Password111",
-                        "manager", "manager", "1234567890")
-        );
+                new UserRegisterRequestDto(
+                        "manager@gmail.com", "Password111", "Password111",
+                        "manager", "manager", "1234567890"));
 
         UpdateUserRoleRequestDto updateRole = new UpdateUserRoleRequestDto(Role.RoleName.MANAGER);
         UserResponseDto updated = userService.updateUserRole(saved.id(), updateRole);
 
-        Optional<User> optionalUser = userRepository.findById(updated.id());
-        assertTrue(optionalUser.isPresent());
-
-        User user = optionalUser.get();
-        boolean hasManagerRole = user.getRoles().stream()
-                .anyMatch(r -> r.getName().equals(Role.RoleName.MANAGER));
-
-        assertTrue(hasManagerRole);
+        User user = userRepository.findById(updated.id()).orElseThrow();
+        assertThat(user.getRoles())
+                .extracting(Role::getName)
+                .contains(Role.RoleName.MANAGER);
     }
 
     @Test
-    @DisplayName("UpdateUserPassword_success: successful update of user password.")
+    @DisplayName("UpdateUserPassword_success")
     void updateUserPassword_success() {
         UserResponseDto saved = userService.register(maxRequest);
 
@@ -168,57 +164,55 @@ public class UserServiceTest {
         String oldPassword = before.getPassword();
 
         UpdateUserPasswordRequestDto passwordUpdate = new UpdateUserPasswordRequestDto(
-                "newPassword222", "newPassword222"
-        );
+                "newPassword222", "newPassword222");
         userService.updateUserPassword(saved.id(), passwordUpdate);
 
         User after = userRepository.findById(saved.id()).orElseThrow();
-        assertNotEquals(oldPassword, after.getPassword());
+        assertThat(after.getPassword()).isNotEqualTo(oldPassword);
     }
 
     @Test
-    @DisplayName("getUserFromAuthentication(): should return User when principal is User entity")
+    @DisplayName("getUserFromAuthentication(): returns User when principal is User")
     void getUserFromAuthentication_returnsUser_whenPrincipalIsUser() {
         User user = new User();
         user.setEmail("vira555@gmail.com");
         user.setId(1L);
 
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(user);
+        Authentication authentication = org.mockito.Mockito.mock(Authentication.class);
+        org.mockito.Mockito.when(authentication.getPrincipal()).thenReturn(user);
 
         User result = userService.getUserFromAuthentication(authentication);
 
-        assertEquals(user, result);
+        assertThat(result).isEqualTo(user);
     }
 
     @Test
-    @DisplayName("getUserFromAuthentication(): should return User when principal is UserDetails")
+    @DisplayName("getUserFromAuthentication(): returns User when principal is UserDetails")
     void getUserFromAuthentication_returnsUser_whenPrincipalIsUserDetails() {
         UserRegisterRequestDto registerRequest = new UserRegisterRequestDto(
                 "john444@gmail.com", "Password444", "Password444", "John", "Jo", "123456444");
         UserResponseDto registeredUser = userService.register(registerRequest);
 
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("john444@gmail.com");
+        UserDetails userDetails = org.mockito.Mockito.mock(UserDetails.class);
+        org.mockito.Mockito.when(userDetails.getUsername()).thenReturn("john444@gmail.com");
 
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(userDetails);
+        Authentication authentication = org.mockito.Mockito.mock(Authentication.class);
+        org.mockito.Mockito.when(authentication.getPrincipal()).thenReturn(userDetails);
 
         User user = userService.getUserFromAuthentication(authentication);
 
-        assertEquals(registeredUser.email(), user.getEmail());
+        assertThat(user.getEmail()).isEqualTo(registeredUser.email());
     }
 
     @Test
-    @DisplayName("getUserFromAuthentication(): should throw "
-            + "UsernameNotFoundException when user not found")
+    @DisplayName("getUserFromAuthentication(): throws UsernameNotFoundException"
+            + " when user not found")
     void getUserFromAuthentication_throwsException_whenUserNotFound() {
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn("nonexistent@gmail.com");
+        Authentication authentication = org.mockito.Mockito.mock(Authentication.class);
+        org.mockito.Mockito.when(authentication.getPrincipal()).thenReturn("nonexistent@gmail.com");
 
-        assertThrows(UsernameNotFoundException.class, () -> {
-            userService.getUserFromAuthentication(authentication);
-        });
+        assertThrows(UsernameNotFoundException.class,
+                () -> userService.getUserFromAuthentication(authentication));
     }
 
     @Test
@@ -226,38 +220,45 @@ public class UserServiceTest {
     void getUserIdFromAuthentication_returnsId() {
         User user = new User();
         user.setId(5L);
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(user);
+        Authentication authentication = org.mockito.Mockito.mock(Authentication.class);
+        org.mockito.Mockito.when(authentication.getPrincipal()).thenReturn(user);
 
         Long id = userService.getUserIdFromAuthentication(authentication);
 
-        assertEquals(5L, id);
+        assertThat(id).isEqualTo(5L);
     }
 
     @Test
-    @DisplayName("findUserById(): should throw EntityNotFoundException if user does not exist")
+    @DisplayName("findUserById(): throws EntityNotFoundException if user does not exist")
     void findUserById_throwsException_whenUserNotExist() {
         Long nonExistentId = 99999L;
-        assertThrows(EntityNotFoundException.class, () -> {
-            userService.findUserById(nonExistentId);
-        });
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.findUserById(nonExistentId));
     }
 
     @Test
-    @DisplayName("updateUserRole(): should throw EntityNotFoundException "
-            + "if role does not exist")
+    @DisplayName("updateUserRole(): throws EntityNotFoundException if role does not exist")
     void updateUserRole_throwsException_whenRoleNotExist() {
         UserResponseDto savedUser = userService.register(
                 new UserRegisterRequestDto("marta123@gmail.com",
-                        "Password123", "Password123", "Test", "User", "123456123")
-        );
+                        "Password123", "Password123", "Test", "User", "123456123"));
         Role.RoleName testRoleName = Role.RoleName.MANAGER;
         roleRepository.findByName(testRoleName).ifPresent(roleRepository::delete);
 
         UpdateUserRoleRequestDto dto = new UpdateUserRoleRequestDto(testRoleName);
 
-        assertThrows(EntityNotFoundException.class, () -> {
-            userService.updateUserRole(savedUser.id(), dto);
-        });
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.updateUserRole(savedUser.id(), dto));
+    }
+
+    @Test
+    @DisplayName("getAllUsers_returnsAllUsers")
+    void getAllUsers_returnsAllUsers() {
+        userService.register(veronikaRequest);
+        userService.register(maxRequest);
+
+        var result = userService.getAllUsers(PageRequest.of(0, 10));
+
+        assertThat(result.getContent()).hasSizeGreaterThanOrEqualTo(2);
     }
 }

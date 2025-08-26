@@ -23,9 +23,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public CarDto addCar(CreateCarDto createCarDto) {
-        Car car = carMapper.toModel(createCarDto);
-        Car saved = carRepository.save(car);
-        return carMapper.toDto(saved);
+        return carMapper.toDto(carRepository.save(carMapper.toModel(createCarDto)));
     }
 
     @Override
@@ -55,7 +53,9 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public void deleteCarById(Long id) {
-        Car car = getCarFromDB(id);
+        if (!carRepository.existsById(id)) {
+            throw new EntityNotFoundException("Car with id " + id + " not found");
+        }
         carRepository.deleteById(id);
     }
 

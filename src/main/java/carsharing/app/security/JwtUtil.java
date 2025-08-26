@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,7 +32,7 @@ public class JwtUtil {
                 .subject(userDetails.getUsername())
                 .claim("authorities", userDetails.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(secret)
@@ -66,8 +65,8 @@ public class JwtUtil {
 
         List<String> authorities = claims.get("authorities", List.class);
         return authorities.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .map(a -> (GrantedAuthority) new SimpleGrantedAuthority(a))
+                .toList();
     }
 
     private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {

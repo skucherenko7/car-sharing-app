@@ -136,6 +136,8 @@ public class CarServiceTest {
     @Test
     @DisplayName("deleteCarById: throws exception if not found")
     void deleteCarById_ShouldThrowException_WhenCarNotFound() {
-        assertThrows(EntityNotFoundException.class, () -> carService.deleteCarById(999L));
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> carService.deleteCarById(999L));
+        assertThat(ex.getMessage()).contains("Car with id 999 not found");
     }
 }

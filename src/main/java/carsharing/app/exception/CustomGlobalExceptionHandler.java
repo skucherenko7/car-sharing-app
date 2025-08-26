@@ -30,6 +30,18 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(response, HttpStatus.PAYMENT_REQUIRED);
     }
 
+    @ExceptionHandler(InsufficientQuantityException.class)
+    public ResponseEntity<ErrorResponseDto>
+            handleInsufficientQuantityException(InsufficientQuantityException ex) {
+        ErrorResponseDto response = new ErrorResponseDto(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                List.of(ex.getMessage()),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(SessionFallException.class)
     public ResponseEntity<ErrorResponseDto> handleSessionFallException(SessionFallException ex) {
         ErrorResponseDto response = new ErrorResponseDto(
@@ -39,18 +51,6 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    @ExceptionHandler(InsufficientQuantityException.class)
-    public ResponseEntity<ErrorResponseDto>
-                    handleInsufficientQuantityException(InsufficientQuantityException ex) {
-        ErrorResponseDto response = new ErrorResponseDto(
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                List.of(ex.getMessage()),
-                LocalDateTime.now()
-        );
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ForbiddenOperationException.class)
