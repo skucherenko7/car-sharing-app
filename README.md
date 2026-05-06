@@ -1,4 +1,4 @@
-## **Project "CAR SHARING App"**
+## **Project "RideShare Backend Platform "**
 
    Welcome to the *scalable and modular RESTful API** — **CarSharing  Backend**.  
 This project is built using modern technologies such as **Java**, **Spring Boot**, **Spring Security**, **Spring Data JPA**, **Swagger**, **Docker**, and more.
